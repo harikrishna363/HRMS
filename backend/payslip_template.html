@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { border: 3px solid black; }
+        .header { text-align: center; }
+        .header p {
+            margin: 3px; /* Removes default margin */
+            padding: 0; /* Removes default padding */
+        }
+        .sub-header { text-align: center; }
+        .sub-header h2{
+            margin: 0;
+        }
+        .sub-header p{
+            padding: 10px;
+            margin: 0;
+        }
+        .name { text-align: center; }
+        .details, .table, .net-amount { width: 100%; margin-bottom: 10px; }
+        .details th, .table th, .net-amount th { text-align: left; padding: 8px; }
+        .details td, .table td, .net-amount td { padding: 8px; }
+        .table, .net-amount { border-collapse: collapse; }
+        .table th, .net-amount th { background-color: #f2f2f2; }
+        .table td, .net-amount td { border-bottom: 1px solid #ddd; }
+        .total { font-weight: bold; }
+        .note { text-align: center; }
+        
+        /* Vertical line between the second and third columns */
+        .table td, .table th {
+            border-right: 1px solid #ddd;
+        }
+        .table th:last-child, .table td:last-child {
+            border-right: none; /* Remove border from the last column */
+        }
+        .separator-row td {
+            border-top: 2px solid black; /* Add a line to separate sections */
+            padding: 0; /* Remove padding */
+        }
+        .separator-row {
+            border: none; /* No borders for separator row */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Timbre Media Private Limited</h2>
+            <p>No.714, 7th Floor, A Block</p>
+            <p>No.01, Carlton Towers, Old Airport Road</p>
+            <p>Bangalore - 560 008</p>
+            <p>CIN: U74300KA2010PTC052222</p>
+        </div>
+        <hr />
+    
+        <div class="sub-header">
+            <h2>Pay Slip</h2>
+            <p>for {{pay_period}}</p>
+        </div>
+        <hr />
+    
+        <table class="details">
+            <h3 class="name">{{name}}</h3>
+            <tr>
+                <th>Employee Number:</th><td>{{employee_id}}</td>
+                <th>Tax Regime:</th><td>{{tax_regime}}</td>
+            </tr>
+            <tr>
+                <th>Function:</th><td></td>
+                <th>Income Tax Number (PAN):</th><td>{{pan_number}}</td>
+            </tr>
+            <tr>
+                <th>Designation:</th><td>{{designation}}</td>
+                <th>Universal Account Number (UAN):</th><td></td>
+            </tr>
+            <tr>
+                <th>Location:</th><td>{{location}}</td>
+                <th>PR Account Number (PRAN):</th><td></td>
+            </tr>
+            <tr>
+                <th>Bank Details:</th><td>{{account_number}}, {{bank_name}}</td>
+                <th>Date of Joining:</th><td>{{joining_date}}</td>
+            </tr>
+        </table>
+        <hr />
+    
+        <table class="table">
+            <thead>
+                <tr><th>Earnings</th><th>Amount</th><th>Deductions</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Basic Pay</td><td>{{basic}}</td><td>PT</td> <td>{{pt}}</td> </tr>
+                <tr><td>HRA</td><td>{{hra}}</td><td>Income Tax</td><td>{{income_tax}}</td></tr>
+                <tr><td>Conveyance</td><td>{{conveyance}}</td><td>Employee Provident Fund</td><td>{{pf}}</td></tr>
+                <tr><td>Telephone & Internet Allowance</td><td>{{telephone_internet}}</td><td></td><td></td></tr>
+                <tr><td>Medical Allowance</td><td>{{medical}}</td><td></td><td></td></tr>
+                <tr><td>Food Allowance</td><td>{{food_allowance}}</td><td></td><td></td></tr>
+                <tr><td>Dress Allowance</td><td>{{dress_allowance}}</td><td></td><td></td></tr>
+                <tr><td>LTA</td><td>{{lta}}</td><td></td><td></td></tr>
+                <tr><td>Other Allowance</td><td>{{other_allowance}}</td><td></td><td></td></tr>
+                <tr><td>Variable Pay</td><td>{{variable_pay}}</td><td></td><td></td></tr>
+                <tr><td class="total">Total Earnings</td><td class="total">{{total_earnings}}</td><td class="total">Total Deductions</td><td class="total">{{total_deductions}}</td></tr>
+                
+                
+            </tbody>
+        </table>
+            
+        <table class="net-amount">
+            <thead>
+                <tr><th>Net Amount</th><th>{{net_salary}}</th></tr>
+                <tr><th>Amount (in words):</th><th>{{amount_in_words}} Only</th></tr>
+            </thead>
+        </table>
+    </div>
+    <p class="note">Best wishes for a prosperous month ahead!</p>
+    <p class="note">This is a Computer Generated Pay Slip</p>
+</body>
+</html>

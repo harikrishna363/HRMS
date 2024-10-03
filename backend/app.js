@@ -8,7 +8,6 @@ const { open } = require('sqlite');
 const sqlite3 = require('sqlite3');
 const jwt = require('jsonwebtoken');
 const numberToWords = require('number-to-words');
-const cron = require('node-cron');
 const { format } = require('date-fns');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
@@ -36,6 +35,8 @@ function capitalizeFirstLetter(str) {
   return str.replace(/\b\w/g, char => char.toUpperCase());
 }
 
+const PORT = process.env.PORT || 4000;
+
 const initializeDBAndServer = async () => {
   try {
     db = await open({
@@ -45,7 +46,7 @@ const initializeDBAndServer = async () => {
 
     await db.run('PRAGMA foreign_keys = ON');
 
-    app.listen(4000, () => {
+    app.listen(PORT, () => {
       console.log('Server Running at http://localhost:4000/');
     });
   } catch (e) {

@@ -175,7 +175,7 @@ class StandardMail extends Component{
             return
         }
 
-        const pendingToast = toast.loading("Sending Mails to Selected Employee(s)...");
+        const pendingToast = toast.loading("Sending Mail to Selected Employee(s)...");
 
         try {
             const jwtToken = Cookies.get("jwt_token");

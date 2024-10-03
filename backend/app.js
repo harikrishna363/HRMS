@@ -15,7 +15,6 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const { Parser } = require('json2csv');
 const moment = require('moment');
-
 const storage = multer.memoryStorage(); 
 
 const upload = multer({
@@ -118,7 +117,7 @@ app.post('/send-mail', authenticateToken, async (req, res) => {
     }
 
     // Respond with success after sending all emails
-    res.status(200).json({success: 'Emails Sent Successfully'});
+    res.status(200).json({success: 'Email Sent Successfully'});
 
   } catch (err) {
     console.error(err);

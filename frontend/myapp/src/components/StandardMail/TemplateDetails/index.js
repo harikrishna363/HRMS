@@ -7,7 +7,7 @@ import { BiError } from "react-icons/bi";
 
 import AppContext from "../../../Context/AppContext";
 import Source from "../../Source";
-import { BackButton, BgContainer, CancelButton, Container, FlexContainer, 
+import { BackButton, CancelButton, Container, FlexContainer, 
     RetryBtn, SaveButton, Title } from "../../Source/styledComponent";
 import { Input, TextArea, InputWrapper } from "./styledComponent";
 
@@ -44,7 +44,7 @@ class TemplateDetails extends Component{
                 },
             };
 
-            const response = await fetch(`http://localhost:4000/email-template/${templateName}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/email-template/${templateName}`, options);
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -90,7 +90,7 @@ class TemplateDetails extends Component{
                 body: JSON.stringify(template),
             };
 
-            const response = await fetch( `http://localhost:4000/update-email-template/${template.name}`, options );
+            const response = await fetch( `${process.env.REACT_APP_API_BASE_URL}/update-email-template/${template.name}`, options );
             const data = await response.json()
 
             if (!response.ok) {

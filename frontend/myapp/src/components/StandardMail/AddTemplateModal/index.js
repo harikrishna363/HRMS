@@ -36,7 +36,7 @@ class AddTemplateModal extends Component {
             body: JSON.stringify({name, subject, text, html}),
         };
 
-        const response = await fetch('http://localhost:4000/add-mail-template', options);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/add-mail-template`, options);
         const data = await response.json()
 
         if (!response.ok) {

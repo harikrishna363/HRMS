@@ -37,7 +37,7 @@ class UserPayroll extends Component{
                 },
             };
 
-            const response =await fetch(`http://localhost:4000/user-payroll/${employeeId}?month=${formattedMonth}`, options)
+            const response =await fetch(`${process.env.REACT_APP_API_BASE_URL}/user-payroll/${employeeId}?month=${formattedMonth}`, options)
             const data = await response.json()
 
             if (!response.ok) {
@@ -74,7 +74,7 @@ class UserPayroll extends Component{
                 },
             };
 
-            const response = await fetch(`http://localhost:4000/payslip/${row.payroll_id}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/payslip/${row.payroll_id}`, options);
             
             if (!response.ok) {
                 toast.error(`Failed to Fetch Leave Requests`, {

@@ -50,7 +50,7 @@ class AddNewTrainingModal extends Component {
                 body: JSON.stringify(newTrainingData),
             };
 
-            const response = await fetch('http://localhost:4000/add-training', options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/add-training`, options);
             const data = await response.json()
 
             if (!response.ok) {

@@ -40,10 +40,11 @@ class AttendanceReportModal extends React.Component {
                     Authorization: `Bearer ${jwtToken}`,
                 },
             };
-            const response = await fetch(`http://localhost:4000/attendance-report?startDate=${startDate}&endDate=${endDate}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance-report?startDate=${startDate}&endDate=${endDate}`, options);
+            const data = await response.json()
 
             if (!response.ok) {
-                toast.error('Failed to Download Attendance Report', {
+                toast.error(data.failure, {
                     autoClose: 4000
                 })
     

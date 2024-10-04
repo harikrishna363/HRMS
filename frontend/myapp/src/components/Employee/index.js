@@ -9,7 +9,7 @@ import AppContext from "../../Context/AppContext";
 import Source from "../Source"
 import AddEmployeeModal from "./AddEmployeeModal";
 
-import { ActiveStatusSelectInput, BgContainer, BlueBtn, Container, 
+import { ActiveStatusSelectInput, BlueBtn, Container, 
     FlexContainer, NoRecordsText, OutlineBtn, RetryBtn, TableTitle } from "../Source/styledComponent";
 
 const apiStatusConstants = {
@@ -42,7 +42,7 @@ class Employee extends Component {
                 }
             }
 
-            const response = await fetch('http://localhost:4000/employee', options)
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/employee`, options)
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -77,7 +77,7 @@ class Employee extends Component {
                 body: JSON.stringify({ status: newStatus }),
             };
 
-            const response = await fetch(`http://localhost:4000/update-employee-status/${employee_id}`, options);    
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-employee-status/${employee_id}`, options);    
             
             const data = await response.json()
 
@@ -126,12 +126,15 @@ class Employee extends Component {
 
     handleDownloadEmployeeReport = async () => {
         try {
-            const response = await fetch('http://localhost:4000/employee-report', {
-                method: 'GET',
+            const jwtToken = Cookies.get("jwt_token");
+            const options = {
+                method: "GET",
                 headers: {
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${jwtToken}`,
                 },
-            });
+            };
+
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/employee-report`, options);
     
             if (!response.ok) {
                 throw new Error('Failed to download report');

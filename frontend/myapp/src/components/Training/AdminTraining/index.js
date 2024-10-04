@@ -45,7 +45,7 @@ class AdminTraining extends Component{
                 },
             };
             
-            const response = await fetch('http://localhost:4000/trainings', options)
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/trainings`, options)
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -112,7 +112,7 @@ class AdminTraining extends Component{
                 body: JSON.stringify({ status: newStatus }),
             };
 
-            const response = await fetch(`http://localhost:4000/update-training-status/${training_id}`, options); 
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-training-status/${training_id}`, options); 
             const data = await response.json()
             
             if (!response.ok) {
@@ -147,12 +147,15 @@ class AdminTraining extends Component{
 
     handleDownloadTrainingReport = async () => {
         try {
-            const response = await fetch('http://localhost:4000/training-report', {
-                method: 'GET',
+            const jwtToken = Cookies.get("jwt_token");
+            const options = {
+                method: "GET",
                 headers: {
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${jwtToken}`,
                 },
-            });
+            };
+
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/training-report`, options);
     
             if (!response.ok) {
                 toast.error('Failed to Download Trainings Report', {

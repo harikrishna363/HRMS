@@ -75,7 +75,7 @@ class UserAttendance extends Component{
             },
         };
 
-        const response = await fetch(`http://localhost:4000/attendance/${this.props.employeeId}`, options);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance/${this.props.employeeId}`, options);
         const data = await response.json();
   
         if (data && data.status) {
@@ -107,10 +107,9 @@ class UserAttendance extends Component{
               Authorization: `Bearer ${jwtToken}`,
           },
           body: JSON.stringify({employeeId: this.props.employeeId }),
-        };
-        
+        };        
 
-        const response = await fetch('http://localhost:4000/attendance/login', options);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance/login`, options);
         const data = await response.json()
 
         if (!response.ok) {
@@ -159,7 +158,7 @@ class UserAttendance extends Component{
           body: JSON.stringify({employeeId: this.props.employeeId }),
         }
 
-        const response = await fetch('http://localhost:4000/attendance/logout', options);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance/logout`, options);
         const data = await response.json()
 
         if (!response.ok) {
@@ -218,7 +217,7 @@ class UserAttendance extends Component{
               },
           };
 
-          const response = await fetch(`http://localhost:4000/user-attendance/${this.props.employeeId}?startDate=${formattedStartDate}&endDate=${formattedEndDate}`, options);
+          const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/user-attendance/${this.props.employeeId}?startDate=${formattedStartDate}&endDate=${formattedEndDate}`, options);
           const data = await response.json();
           
           if (!response.ok) {
@@ -251,7 +250,7 @@ class UserAttendance extends Component{
               },
           };
 
-          const response = await fetch(`http://localhost:4000/leave-requests?employeeId=${employeeId}`, options)
+          const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/leave-requests?employeeId=${employeeId}`, options)
           const data = await response.json()
 
           if (!response.ok) {

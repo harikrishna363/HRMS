@@ -57,7 +57,7 @@ class AdminPayroll extends Component{
           body: JSON.stringify(payrollData),
       };
 
-        const response = await fetch("http://localhost:4000/upload-payroll", options);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/upload-payroll`, options);
         const data = await response.json()
   
         if (!response.ok) {
@@ -105,7 +105,7 @@ class AdminPayroll extends Component{
             },
         };
 
-        const response = await fetch(`http://localhost:4000/payroll?month=${formattedMonth}`, options);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/payroll?month=${formattedMonth}`, options);
 
         if (!response.ok) {
           this.setState({apiStatus: apiStatusConstants.failure})
@@ -132,7 +132,15 @@ class AdminPayroll extends Component{
     
     handleAction = async (row) => {
         try {
-            const response = await fetch(`http://localhost:4000/payslip/${row.payroll_id}`);
+            const jwtToken = Cookies.get("jwt_token");
+            const options = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
+            };
+
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/payslip/${row.payroll_id}`, options);
             
             if (response.ok) {
                 const blob = await response.blob();

@@ -70,7 +70,7 @@ class ApplyLeaveModal extends Component {
                 body: JSON.stringify(leaveData),
             };
 
-            const response = await fetch('http://localhost:4000/apply-leave', options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/apply-leave`, options);
             const data = await response.json()
 
             if (!response.ok) {

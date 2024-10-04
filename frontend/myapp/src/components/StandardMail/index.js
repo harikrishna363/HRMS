@@ -45,8 +45,8 @@ class StandardMail extends Component{
     fetchData = async () => {
         this.setState({ apiStatus: apiStatusConstants.loading });
 
-        const employeesUrl = "http://localhost:4000/active-employees";
-        const mailTemplatesUrl = "http://localhost:4000/mail-templates";
+        const employeesUrl = `${process.env.REACT_APP_API_BASE_URL}/active-employees`;
+        const mailTemplatesUrl = `${process.env.REACT_APP_API_BASE_URL}/mail-templates`;
         const jwtToken = Cookies.get("jwt_token");
 
         const options = {
@@ -114,7 +114,7 @@ class StandardMail extends Component{
                     Authorization: `Bearer ${jwtToken}`
                 }
             }
-            const response = await fetch(`http://localhost:4000/active-employees`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/active-employees`, options);
             if (!response.ok) {
                 throw new Error('Failed to fetch Employee details');
             }
@@ -138,7 +138,7 @@ class StandardMail extends Component{
                 },
             };
 
-            const response = await fetch(`http://localhost:4000/mail-templates`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/mail-templates`, options);
             if (!response.ok) {
                 throw new Error('Failed to fetch Employee details');
             }
@@ -189,7 +189,7 @@ class StandardMail extends Component{
                 body: JSON.stringify({selectedTemplate, employeeMails}),
             }
 
-            const response = await fetch(`http://localhost:4000/send-mail`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/send-mail`, options);
             const data = await response.json()
 
             if (!response.ok) {
@@ -233,7 +233,7 @@ class StandardMail extends Component{
 
         const newStatus = event.target.value;
     
-        const apiUrl = `http://localhost:4000/update-mail-template-status/${name}`;
+        const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/update-mail-template-status/${name}`;
         const jwtToken = Cookies.get("jwt_token");
         const options = {
             method: "PUT",
@@ -293,8 +293,11 @@ class StandardMail extends Component{
         const employeeColumns = [
             { name: "ID", selector: row => row.id, sortable: true},
             { name: "Name", selector: row => row.name},
+            { name: "Department", selector: row => row.department},
             { name: "Designation", selector: row => row.designation},
             { name: "Email", selector: row => row.email},
+            { name: "Phone", selector: row => row.phone_number},
+            
         ]
 
         return(

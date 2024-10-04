@@ -62,7 +62,7 @@ class Profile extends Component{
                 },
             };
 
-            const response = await fetch(`http://localhost:4000/employee/${employeeId}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/employee/${employeeId}`, options);
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -103,7 +103,7 @@ class Profile extends Component{
                     body: formData,
                 };
 
-                const response = await fetch( `http://localhost:4000/update-photograph/${employeeId}`, options);
+                const response = await fetch( `${process.env.REACT_APP_API_BASE_URL}/update-photograph/${employeeId}`, options);
                 const data = await response.json()
 
                 if (!response.ok) {
@@ -164,7 +164,7 @@ class Profile extends Component{
                     Authorization: `Bearer ${jwtToken}`,
                 },
             };
-            const response = await fetch(`http://localhost:4000/delete-photograph/${employeeId}`,options );
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/delete-photograph/${employeeId}`,options );
             const data = await response.json()
 
             if (!response.ok) {
@@ -212,7 +212,7 @@ class Profile extends Component{
                 body: JSON.stringify({...myDetails, photograph: ''}),
             };
 
-            const response = await fetch(`http://localhost:4000/update-profile/${myDetails.employee_id}`, options );
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-profile/${myDetails.employee_id}`, options );
             const data = await response.json()
 
             if (!response.ok) {

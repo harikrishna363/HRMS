@@ -56,14 +56,16 @@ class Login extends Component {
     }
 
     const userDetails = { email, password };
-    const apiUrl = "http://localhost:4000/login";
+    const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/login`;
+    
     const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
       },
-      body: JSON.stringify(userDetails)
-    }
+      body: JSON.stringify(userDetails),
+    };
+
     const response = await fetch(apiUrl, options);
     const data = await response.json();
     

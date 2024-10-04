@@ -44,7 +44,7 @@ class CvDetails extends Component{
                 },
             };
 
-            const response = await fetch(`http://localhost:4000/cv/${candidateId}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/cv/${candidateId}`, options);
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -93,7 +93,7 @@ class CvDetails extends Component{
                 body: JSON.stringify(cvDetails),
             };
 
-            const response = await fetch(`http://localhost:4000/update-cv/${cvDetails.candidate_id}`, options );
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-cv/${cvDetails.candidate_id}`, options );
             const data = await response.json()
 
             if (!response.ok) {

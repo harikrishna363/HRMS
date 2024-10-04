@@ -43,13 +43,14 @@ class ForgotPassword extends Component {
     }
     this.setState({isLoading: true})
 
-    const apiUrl = "http://localhost:4000/send-otp";
+    const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/send-otp`;
+
     const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email }),
     };
     
     const response = await fetch(apiUrl, options);
@@ -68,13 +69,15 @@ class ForgotPassword extends Component {
     event.preventDefault();
     const {email, otp, newPassword} = this.state
 
-    const response = await fetch("http://localhost:4000/reset-password", {
-    method: "POST",
-    headers: {
-    "Content-Type": "application/json",
-    },
-    body: JSON.stringify({email, otp, newPassword}),
-    });
+    const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify({email, otp, newPassword}),
+    };
+
+    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/reset-password`, options);
 
     const data = await response.json();
     if (response.ok) {

@@ -97,7 +97,7 @@ class AdminAttendance extends Component {
           },
       };
 
-      const response = await fetch(`http://localhost:4000/attendance/${this.props.employeeId}`, options);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance/${this.props.employeeId}`, options);
       const data = await response.json();
 
       if (data && data.status) {
@@ -133,7 +133,7 @@ class AdminAttendance extends Component {
       };
       
 
-      const response = await fetch('http://localhost:4000/attendance/login', options);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance/login`, options);
       const data = await response.json()
 
       if (!response.ok) {
@@ -182,7 +182,7 @@ class AdminAttendance extends Component {
         body: JSON.stringify({employeeId: this.props.employeeId }),
       }
 
-      const response = await fetch('http://localhost:4000/attendance/logout', options);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance/logout`, options);
       const data = await response.json()
 
       if (!response.ok) {
@@ -241,7 +241,7 @@ class AdminAttendance extends Component {
           body: JSON.stringify(attendanceData),
       };
 
-      const response = await fetch("http://localhost:4000/upload-attendance", options);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/upload-attendance`, options);
       const data = await response.json()
 
       if (!response.ok) {
@@ -302,7 +302,7 @@ class AdminAttendance extends Component {
               Authorization: `Bearer ${jwtToken}`,
           },
       };
-      const response = await fetch(`http://localhost:4000/employee-leave-requests`, options)
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/employee-leave-requests`, options)
       const data = await response.json()
 
       if (!response.ok) {
@@ -327,9 +327,8 @@ class AdminAttendance extends Component {
     const pendingToast = toast.loading("Updating Leave Status...");
 
     try {
-      const apiUrl = `http://localhost:4000/update-leave-status/${leaveRequest.leave_id}`;
+      const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/update-leave-status/${leaveRequest.leave_id}`;
       const jwtToken = Cookies.get("jwt_token");
-
       const options = {
         method: "PUT",
         headers: {
@@ -389,7 +388,7 @@ class AdminAttendance extends Component {
           },
       };
 
-      const response = await fetch(`http://localhost:4000/attendance?startDate=${formattedStartDate}&endDate=${formattedEndDate}`, options);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance?startDate=${formattedStartDate}&endDate=${formattedEndDate}`, options);
       const data = await response.json();
    
       this.setState({ 

@@ -56,7 +56,7 @@ class AddEmployeeForm extends Component {
             body: JSON.stringify(formData),
         };
 
-      const response = await fetch('http://localhost:4000/add-employee-form', options);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/add-employee-form`, options);
       const data = await response.json()
 
       if (!response.ok) {

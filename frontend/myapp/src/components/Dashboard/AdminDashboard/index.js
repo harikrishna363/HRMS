@@ -59,8 +59,8 @@ class AdminDashboard extends Component{
     fetchData = async () => {
         this.setState({ apiStatus: apiStatusConstants.loading });
 
-        const activeEmployeesUrl = "http://localhost:4000/active-employees-count";
-        const activeCvUrl = "http://localhost:4000/active-cv-count";
+        const activeEmployeesUrl = `${process.env.REACT_APP_API_BASE_URL}/active-employees-count`
+        const activeCvUrl = `${process.env.REACT_APP_API_BASE_URL}/active-cv-count`
         const jwtToken = Cookies.get("jwt_token");
 
         const options = {

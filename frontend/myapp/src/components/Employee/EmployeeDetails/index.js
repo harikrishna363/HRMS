@@ -59,7 +59,7 @@ class EmployeeDetails extends Component{
                 }
             }
 
-            const response = await fetch(`http://localhost:4000/employee/${employeeId}`, options)
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/employee/${employeeId}`, options)
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -79,52 +79,6 @@ class EmployeeDetails extends Component{
         }
         
     }
-
-    fetchData = async () => {
-        this.setState({ apiStatus: apiStatusConstants.loading });
-        const {employeeId} = this.state
-
-        const employeeDetailsUrl = `http://localhost:4000/employee/${employeeId}`
-        const departmentsUrl = "http://localhost:4000/departments";
-        const managersUrl = "http://localhost:4000/managers";
-
-        const jwtToken = Cookies.get("jwt_token");
-
-        const options = {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${jwtToken}`,
-            },
-        };
-
-        try {
-            const [employeeDetailsResponse, departmentsResponse, managersResponse] = await Promise.all([
-                fetch(employeeDetailsUrl, options),
-                fetch(departmentsUrl, options),
-                fetch(managersUrl, options),
-            ]);
-
-            if (!employeeDetailsResponse.ok || !departmentsResponse.ok || !managersResponse.ok) {
-                this.setState({ apiStatus: apiStatusConstants.failure });
-                return;
-            }
-
-            const employeeDetailsData = await employeeDetailsResponse.json();
-            const departmentsData = await departmentsResponse.json();
-            const managersData = await managersResponse.json();
-
-            this.setState({
-                employeeDetails: employeeDetailsData,
-                originalEmployeeDetails: employeeDetailsData,
-                previewPhoto: employeeDetailsData.photograph ? `data:image/jpeg;base64,${employeeDetailsData.photograph}` : null,
-                departments: departmentsData,
-                managers: managersData,
-                apiStatus: apiStatusConstants.success,
-            });
-        } catch (error) {
-            this.setState({ apiStatus: apiStatusConstants.failure });
-        }
-    };
 
     handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -152,7 +106,7 @@ class EmployeeDetails extends Component{
                 body: JSON.stringify(employeeDetails),
             };
 
-            const response = await fetch(`http://localhost:4000/update-employee/${employeeDetails.employee_id}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-employee/${employeeDetails.employee_id}`, options);
             const data = await response.json()
 
             if (!response.ok) {

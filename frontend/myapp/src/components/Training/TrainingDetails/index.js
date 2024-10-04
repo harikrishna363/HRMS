@@ -10,7 +10,9 @@ import { BiError } from "react-icons/bi";
 import AppContext from "../../../Context/AppContext";
 import Source from "../../Source"; 
 
-import { FlexContainer, Input, SelectInput, TextArea, SearchBox, BackButton, Title, InputWrapper, BlueBtn, CancelButton, SaveButton, TableContainer, TableTitle, NoRecordsText, ActiveStatusSelectInput, RetryBtn, Container, BgContainer } from "../../Source/styledComponent";
+import { FlexContainer, Input, SelectInput, TextArea, SearchBox, 
+    BackButton, Title, InputWrapper, BlueBtn, CancelButton, SaveButton, 
+    TableContainer, TableTitle, NoRecordsText, ActiveStatusSelectInput, RetryBtn, Container } from "../../Source/styledComponent";
 
 const apiStatusConstants = {
     loading: 'LOADING',
@@ -49,7 +51,7 @@ class TrainingDetails extends Component {
                 },
             };
 
-            const response = await fetch(`http://localhost:4000/training/${trainingId}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/training/${trainingId}`, options);
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -98,7 +100,7 @@ class TrainingDetails extends Component {
                 body: JSON.stringify(trainingDetails),
             };
 
-            const response = await fetch(`http://localhost:4000/update-training/${trainingId}`, options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-training/${trainingId}`, options);
             const data = await response.json()
 
             if (!response.ok) {
@@ -185,7 +187,7 @@ class TrainingDetails extends Component {
                 body: JSON.stringify(employeeData),
             }
 
-          const response = await fetch(`http://localhost:4000/training/${trainingId}/register-employees`, options);
+          const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/training/${trainingId}/register-employees`, options);
           const data = await response.json()
 
           if (!response.ok) {
@@ -240,7 +242,7 @@ class TrainingDetails extends Component {
                 body: JSON.stringify({ status: newStatus, employee_id }),
             };
 
-            const response = await fetch(`http://localhost:4000/update-employee-training-status/${trainingId}`, options); 
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-employee-training-status/${trainingId}`, options); 
             const data = await response.json()
             
             if (!response.ok) {

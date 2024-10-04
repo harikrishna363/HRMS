@@ -47,7 +47,7 @@ const initializeDBAndServer = async () => {
     await db.run('PRAGMA foreign_keys = ON');
 
     app.listen(PORT, () => {
-      console.log('Server Running at http://localhost:4000/');
+      console.log(`Server Running at port ${PORT}`);
     });
   } catch (e) {
     console.log(`DB Error: ${e.message}`);
@@ -77,12 +77,12 @@ const authenticateToken = (request, response, next) => {
  
   if (jwtToken === undefined){
     response.status(401)
-    response.send({errorMessage: "Invalid JWT Token"});
+    response.send("Invalid JWT Token");
   }else{
     jwt.verify(jwtToken, "MY_SECRET_TOKEN", async (error, payload) => {
       if (error) {
         response.status(401);
-        response.send({errorMessage: "Invalid JWT Token"});
+        response.send("Invalid JWT Token");
       } else {
         next();
       }
@@ -126,7 +126,7 @@ app.post('/send-mail', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/email-template/:templateName', async (req, res) => {
+app.get('/email-template/:templateName', authenticateToken, async (req, res) => {
   const { templateName } = req.params;
   try {
     const template = await db.get('SELECT * FROM email_templates WHERE name = ?', [templateName]);
@@ -140,7 +140,7 @@ app.get('/email-template/:templateName', async (req, res) => {
   }
 });
 
-app.get('/mail-templates', async (req, res) => {
+app.get('/mail-templates', authenticateToken, async (req, res) => {
   const query = `SELECT * FROM email_templates`;
 
   try{
@@ -167,7 +167,7 @@ app.put('/update-mail-template-status/:name', authenticateToken, async (req, res
   }
 });
 
-app.post('/add-mail-template', async (req, res) => {
+app.post('/add-mail-template', authenticateToken, async (req, res) => {
   const {name, subject, text, html} = req.body
 
   const query = `INSERT INTO email_templates(name, subject, text, html)
@@ -182,7 +182,7 @@ app.post('/add-mail-template', async (req, res) => {
   }
 })
 
-app.put('/update-email-template/:templateName', async (req, res) => {
+app.put('/update-email-template/:templateName', authenticateToken, async (req, res) => {
   const { templateName } = req.params; 
   const { subject, text, html } = req.body; 
 
@@ -284,7 +284,7 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
-app.post('/change-password', async (req, res) => {
+app.post('/change-password', authenticateToken, async (req, res) => {
   const {employeeId, currentPassword, newPassword} = req.body
 
   const query = `UPDATE employee 
@@ -308,25 +308,6 @@ app.post('/change-password', async (req, res) => {
     res.status(500).json({error: 'Internal Server Error'})
   }
 })
-
-app.get("/get-user-name", async (req, res) => {
-  const { employeeId }= req.query;
-
-  const getUserNameQuery = `
-    select e.first_name as name 
-    from employee e
-    where e.employee_id = '${employeeId}'
-  `;
-
-  try{
-    userName = await db.get(getUserNameQuery);
-    res.status(200).json(userName)
-  }catch (err){
-    console.error('Error fetching User name:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-
-});
 
 app.get('/active-employees-count', authenticateToken, async (req, res) => {
 
@@ -379,20 +360,23 @@ app.get('/employee', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/active-employees', authenticateToken, async (request, response) => {
-  const getEmployeeQuery = `select 
-    employee_id as id,
+app.get('/active-employees', authenticateToken, async (req, res) => {
+  const query = `select 
+    employee_id,
     first_name || ' ' || last_name as name,
     email,
-    designation
-    FROM employee
+    phone_number,
+    department,
+    designation FROM employee
     WHERE status = 'Active'
   `;
 
-  const dbResponse = await db.all(getEmployeeQuery);
-  response.status(200);
-  response.send(dbResponse);
-
+  try{
+    const data = await db.all(query)
+      res.status(200).json(data)
+  } catch (err) {
+    res.status(500).json('Internal Server Error')
+  }
 });
 
 app.get('/employee/:employeeId', authenticateToken, async (req, res) => {
@@ -423,7 +407,7 @@ app.get('/employee/:employeeId', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/add-employee-form', async (req, res) => {
+app.post('/add-employee-form', authenticateToken, async (req, res) => {
   const employeeData = req.body;
   console.log(employeeData)
 
@@ -590,7 +574,7 @@ app.post('/add-employee-csv', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/employee-report', async (req, res) => {
+app.get('/employee-report', authenticateToken, async (req, res) => {
   const query = `
           SELECT 
               e.employee_id, e.first_name, e.last_name, e.gender, e.dob, e.email, e.phone_number, 
@@ -645,7 +629,7 @@ app.get('/employee-report', async (req, res) => {
   }
 });
 
-app.put('/update-photograph/:employeeId', (req, res) => {
+app.put('/update-photograph/:employeeId', authenticateToken, (req, res) => {
   const { employeeId } = req.params;
 
   // Assuming you're using multer to handle file uploads
@@ -668,7 +652,7 @@ app.put('/update-photograph/:employeeId', (req, res) => {
   });
 });
 
-app.put('/delete-photograph/:employeeId', async (req, res) => {
+app.put('/delete-photograph/:employeeId', authenticateToken, async (req, res) => {
   const { employeeId } = req.params;
 
   try {
@@ -683,7 +667,7 @@ app.put('/delete-photograph/:employeeId', async (req, res) => {
   }
 });
 
-app.put('/update-profile/:employee_id', async (req, res) => {
+app.put('/update-profile/:employee_id', authenticateToken, async (req, res) => {
   const { employee_id } = req.params;
 
   const {
@@ -741,7 +725,7 @@ app.put('/update-profile/:employee_id', async (req, res) => {
 
 });
 
-app.put('/update-employee/:employee_id', async (req, res) => {
+app.put('/update-employee/:employee_id', authenticateToken, async (req, res) => {
   const { employee_id } = req.params;
   
   const {
@@ -869,31 +853,7 @@ app.put('/update-employee-status/:employee_id', authenticateToken, async (req, r
   }
 });
 
-app.get('/departments', authenticateToken, async (req, res) => {
-  try {
-    const sql = 'SELECT department_name FROM department';
-    const departments = await db.all(sql);
-    res.status(200).json(departments);
-  } catch (err) {
-    console.error('Error fetching departments:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/managers', authenticateToken, async (req, res) => {
-  try {
-    const sql = `select employee.first_name || ' ' || employee.last_name as name
-from manager inner join employee on manager.employee_id = employee.employee_id
-;`
-    const managers = await db.all(sql);
-    res.status(200).json(managers);
-  } catch (err) {
-    console.error('Error fetching managers:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/employee-leave-requests', async (req, res) => {
+app.get('/employee-leave-requests',authenticateToken, async (req, res) => {
 
   const query = `SELECT l.leave_id, e.employee_id, e.first_name || ' ' || e.last_name as name, e.designation,
                   l.leave_type, l.start_date, l.end_date, l.leave_reason, l.leave_status, l.applied_date
@@ -912,7 +872,7 @@ app.get('/employee-leave-requests', async (req, res) => {
   }
 });
 
-app.put('/update-leave-status/:leaveId', async (req, res) => {
+app.put('/update-leave-status/:leaveId', authenticateToken, async (req, res) => {
   const { status, leaveRequest } = req.body;
   const { leaveId } = req.params;
 
@@ -947,8 +907,7 @@ app.put('/update-leave-status/:leaveId', async (req, res) => {
   }
 });
 
-
-app.get('/attendance', async (req, res) => {
+app.get('/attendance', authenticateToken, async (req, res) => {
   const { startDate, endDate } = req.query;
 
   // Default to last 7 days if no date range is provided
@@ -1005,8 +964,7 @@ app.get('/attendance', async (req, res) => {
   }
 });
 
-
-app.get('/attendance/:employeeId', async (req, res) => {
+app.get('/attendance/:employeeId', authenticateToken, async (req, res) => {
   const { employeeId } = req.params;
   const currentDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -1017,15 +975,15 @@ app.get('/attendance/:employeeId', async (req, res) => {
     if (attendance) {
       res.status(200).json(attendance);
     } else {
-      res.status(404).json({ message: 'No attendance record found for today.' });
+      res.status(404).json({ failure: 'No attendance record found for today.' });
     }
   } catch (error) {
     console.error('Error fetching attendance:', error);
-    res.status(500).json({ message: 'Error fetching attendance.' });
+    res.status(500).json({ failure: 'Error fetching attendance.' });
   }
 });
 
-app.post('/attendance/login', async (req, res) => {
+app.post('/attendance/login', authenticateToken, async (req, res) => {
   const { employeeId } = req.body;
   const currentDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -1046,7 +1004,7 @@ app.post('/attendance/login', async (req, res) => {
   }
 });
 
-app.post('/attendance/logout', async (req, res) => {
+app.post('/attendance/logout', authenticateToken, async (req, res) => {
   const { employeeId } = req.body;
   const currentDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -1068,7 +1026,7 @@ app.post('/attendance/logout', async (req, res) => {
   }
 });
 
-app.get('/user-attendance/:employeeId', async (req, res) => {
+app.get('/user-attendance/:employeeId', authenticateToken, async (req, res) => {
   const { startDate, endDate } = req.query;
   const { employeeId } = req.params;
 
@@ -1114,7 +1072,7 @@ app.get('/user-attendance/:employeeId', async (req, res) => {
   }
 });
 
-app.post('/apply-leave', async (req, res) => {
+app.post('/apply-leave', authenticateToken, async (req, res) => {
   const {employeeId, leaveType, startDate, endDate,leaveReason} = req.body;
 
   const query = `INSERT into leave_requests(employee_id, leave_type, start_date, end_date, leave_reason)
@@ -1130,7 +1088,7 @@ app.post('/apply-leave', async (req, res) => {
   }
 });
 
-app.get('/leave-requests', async (req, res) => {
+app.get('/leave-requests', authenticateToken, async (req, res) => {
   const {employeeId} = req.query;
 
   const query = `SELECT leave_type, start_date, end_date, leave_reason, leave_status, applied_date
@@ -1148,7 +1106,7 @@ app.get('/leave-requests', async (req, res) => {
   }
 });
 
-app.get('/attendance-report', async (req, res) => {
+app.get('/attendance-report', authenticateToken, async (req, res) => {
   const { startDate, endDate } = req.query;
 
   const query = `
@@ -1170,7 +1128,7 @@ app.get('/attendance-report', async (req, res) => {
       const attendanceData = await db.all(query, [startDate, endDate]);
 
       if (attendanceData.length === 0) {
-          return res.status(404).json({ message: 'No attendance records found' });
+          return res.status(404).json({ failure: 'No attendance records found' });
       }
 
       // Get all unique employee IDs
@@ -1227,12 +1185,11 @@ app.get('/attendance-report', async (req, res) => {
       res.status(200).send(csv);
   } catch (error) {
       console.error('Error generating attendance report:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(500).json({ failure: 'Internal Server Error' });
   }
 });
 
-
-app.get('/payroll',async (req, res) => {
+app.get('/payroll', authenticateToken,async (req, res) => {
   const { month } = req.query;
   if (!month) {
     return res.status(400).json({ error: 'Month is required' });
@@ -1269,7 +1226,7 @@ app.get('/payroll',async (req, res) => {
   }
 });
 
-app.post('/upload-attendance', async (req, res) => {
+app.post('/upload-attendance', authenticateToken, async (req, res) => {
   const attendanceData = req.body;
 
   const uploadAttendanceQuery = `
@@ -1300,7 +1257,7 @@ app.post('/upload-attendance', async (req, res) => {
   }
   });
 
-app.post('/upload-payroll', async (req, res) => {
+app.post('/upload-payroll', authenticateToken, async (req, res) => {
     const payrollData = req.body
 
     const uploadPayrollQuery = `
@@ -1405,7 +1362,7 @@ app.post('/upload-payroll', async (req, res) => {
     } 
   });
 
-  app.get('/payslip/:payroll_id', async (req, res) => {
+  app.get('/payslip/:payroll_id', authenticateToken, async (req, res) => {
     const { payroll_id } = req.params;
     
     try {
@@ -1427,7 +1384,7 @@ app.post('/upload-payroll', async (req, res) => {
     }
 });
 
-app.get('/user-payroll/:employeeId', async (req, res) => {
+app.get('/user-payroll/:employeeId', authenticateToken, async (req, res) => {
   const {employeeId} = req.params
   const {month} = req.query
 
@@ -1451,7 +1408,7 @@ app.get('/user-payroll/:employeeId', async (req, res) => {
   }
 });
 
-app.get('/trainings', async (req, res) => {
+app.get('/trainings', authenticateToken, async (req, res) => {
   const query = `SELECT * FROM training
                  ORDER BY training_id DESC
                  `;
@@ -1465,7 +1422,7 @@ app.get('/trainings', async (req, res) => {
   }
 })
 
-app.get('/user-trainings/:employeeId', async (req, res) => {
+app.get('/user-trainings/:employeeId', authenticateToken, async (req, res) => {
   const {employeeId} = req.params
 
   const query = `SELECT * FROM training t
@@ -1483,7 +1440,7 @@ app.get('/user-trainings/:employeeId', async (req, res) => {
   }
 })
 
-app.post('/add-training', async (req, res) => {
+app.post('/add-training', authenticateToken, async (req, res) => {
   const {subject, startDate, endDate, trainer, hours, method, remarks} = req.body
 
   const query = `INSERT INTO training(training_subject, start_date, end_date, trainer_name, training_hours, training_method, remarks)
@@ -1499,7 +1456,7 @@ app.post('/add-training', async (req, res) => {
 
 });
 
-app.get('/training/:trainingId', async (req, res) => {
+app.get('/training/:trainingId', authenticateToken, async (req, res) => {
   const { trainingId } = req.params;
 
   const trainingQuery = `
@@ -1534,7 +1491,7 @@ app.get('/training/:trainingId', async (req, res) => {
   }
 });
 
-app.put('/update-training/:trainingId', async (req, res) => {
+app.put('/update-training/:trainingId', authenticateToken, async (req, res) => {
   const { trainingId } = req.params;
   const { training_subject, start_date, end_date, trainer_name, training_hours, training_method, progress_status, active_status, remarks } = req.body;
 
@@ -1558,7 +1515,7 @@ app.put('/update-training/:trainingId', async (req, res) => {
   }
 });
 
-app.post("/training/:trainingId/register-employees", async (req, res) => {
+app.post("/training/:trainingId/register-employees", authenticateToken, async (req, res) => {
   const { trainingId } = req.params;
   const  employees  = req.body;
 
@@ -1610,20 +1567,7 @@ app.put('/update-employee-training-status/:training_id', authenticateToken, asyn
   }
 });
 
-app.put('/mark-training/:trainingId', async (req, res) => {
-  const { trainingId } = req.params;
-
-  const query = `UPDATE training SET status = 'Completed' WHERE training_id = ?`;
-  try{
-    await db.run(query, [trainingId])
-    res.status(200).json({ message: 'Training Marked as Completed' });
-  } catch (err) {
-      res.status(500).json({ error: 'Failed to update training' });
-  }
-  }
-);
-
-app.get('/training-report', async (req, res) => {
+app.get('/training-report', authenticateToken, async (req, res) => {
   try {
       // Query to fetch training details along with registered employees
       const query = `
@@ -1676,7 +1620,7 @@ app.get('/training-report', async (req, res) => {
   }
 });
 
-app.get('/cv', async (req, res) => {
+app.get('/cv', authenticateToken, async (req, res) => {
   const query = `SELECT * FROM cv_database`
 
   try{
@@ -1688,7 +1632,7 @@ app.get('/cv', async (req, res) => {
   }
 })
 
-app.post('/upload-cv', async (req, res) => {
+app.post('/upload-cv', authenticateToken, async (req, res) => {
   const cvs = req.body; 
 
   const cvInsertQuery = `
@@ -1752,7 +1696,7 @@ app.put('/update-candidate-status/:candidate_id', authenticateToken, async (req,
   }
 });
 
-app.get('/cv/:candidate_id', async (req, res) => {
+app.get('/cv/:candidate_id', authenticateToken, async (req, res) => {
   const { candidate_id } = req.params;
 
   const query = `
@@ -1774,7 +1718,7 @@ app.get('/cv/:candidate_id', async (req, res) => {
   }
 });
 
-app.put('/update-cv/:candidate_id', async (req, res) => {
+app.put('/update-cv/:candidate_id', authenticateToken, async (req, res) => {
   const { candidate_id } = req.params;
   const {
     name,
@@ -1848,10 +1792,8 @@ app.put('/update-cv/:candidate_id', async (req, res) => {
 });
 
 
-
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  
 });
 
 initializeDBAndServer();

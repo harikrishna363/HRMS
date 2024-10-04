@@ -53,7 +53,7 @@ class AddEmployeeCsv extends Component{
         },
         body: JSON.stringify(employeeData),
       }
-      const response = await fetch("http://localhost:4000/add-employee-csv", options);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/add-employee-csv`, options);
       const data = await response.json()
 
       if (!response.ok) {
@@ -88,7 +88,6 @@ class AddEmployeeCsv extends Component{
     };
 
     handleTemplateDownload = () => {
-        // Example data
         const data = [
           [
               'employee_id', 'first_name', 'last_name', 'gender', 'dob', 'email', 'phone_number',

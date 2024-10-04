@@ -50,7 +50,7 @@ class CvDatabase extends Component {
                 },
             };
 
-            const response = await fetch('http://localhost:4000/cv', options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/cv`, options);
 
             if (!response.ok) {
                 this.setState({apiStatus: apiStatusConstants.failure})
@@ -94,7 +94,7 @@ class CvDatabase extends Component {
                 body: JSON.stringify(candidateData),
             }
 
-            const response = await fetch("http://localhost:4000/upload-cv", options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/upload-cv`, options);
             const data = await response.json()
 
             if (!response.ok) {
@@ -201,7 +201,7 @@ class CvDatabase extends Component {
 
         const newStatus = event.target.value;
     
-        const apiUrl = `http://localhost:4000/update-candidate-status/${candidate_id}`;
+        const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/update-candidate-status/${candidate_id}`;
         const jwtToken = Cookies.get("jwt_token");
         const options = {
             method: "PUT",

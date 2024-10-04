@@ -108,7 +108,7 @@ class Sidebar extends Component {
                 },
                 body: JSON.stringify({ currentPassword, employeeId, newPassword }),
             };
-            const response = await fetch("http://localhost:4000/change-password", options);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/change-password`, options);
 
             const data = await response.json();
 

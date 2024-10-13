@@ -26,7 +26,7 @@ class AddEmployeeForm extends Component {
     designation: '',
     salary: '',
     department: '',
-    manager: '',
+    manager_id: '',
     password: '',
     role: '',
     effectiveDate: '',
@@ -234,7 +234,6 @@ class AddEmployeeForm extends Component {
                 name="educationLevel" 
                 value={this.state.educationLevel} 
                 onChange={this.handleChange} 
-                required
             />
             <label>Educational Level</label>
         </InputWrapper>
@@ -245,7 +244,6 @@ class AddEmployeeForm extends Component {
                 name="jobTitle" 
                 value={this.state.jobTitle} 
                 onChange={this.handleChange} 
-                required
             />
             <label>Job Title</label>
         </InputWrapper>
@@ -256,7 +254,6 @@ class AddEmployeeForm extends Component {
                 name="designation" 
                 value={this.state.designation} 
                 onChange={this.handleChange} 
-                required
             />
             <label>Designation</label>
         </InputWrapper>
@@ -267,7 +264,6 @@ class AddEmployeeForm extends Component {
                 name="hireDate" 
                 value={this.state.hireDate} 
                 onChange={this.handleChange} 
-                required
             />
             <label>Hire Date</label>
         </InputWrapper>
@@ -278,7 +274,6 @@ class AddEmployeeForm extends Component {
                 name="salary" 
                 value={this.state.salary} 
                 onChange={this.handleChange} 
-                required
             />
             <label>Salary</label>
         </InputWrapper>
@@ -289,7 +284,6 @@ class AddEmployeeForm extends Component {
                 name='department' 
                 value={this.state.department}
                 onChange={this.handleChange} 
-                required
             />
             <label>Department</label>
         </InputWrapper>
@@ -297,12 +291,11 @@ class AddEmployeeForm extends Component {
         <InputWrapper>
             <Input
                 type="text" 
-                name='manager' 
-                value={this.state.manager}
+                name='manager_id' 
+                value={this.state.manager_id}
                 onChange={this.handleChange} 
-                required
             />
-            <label>Manager</label>
+            <label>Manager ID</label>
         </InputWrapper>
 
         <InputWrapper>
@@ -311,7 +304,6 @@ class AddEmployeeForm extends Component {
                 name="effectiveDate" 
                 value={this.state.effectiveDate} 
                 onChange={this.handleChange} 
-                required
             />
             <label>Effective Date</label>
         </InputWrapper>
@@ -322,7 +314,6 @@ class AddEmployeeForm extends Component {
                 name="joiningDate" 
                 value={this.state.joiningDate} 
                 onChange={this.handleChange} 
-                required
             />
             <label>Joining Date</label>
         </InputWrapper>

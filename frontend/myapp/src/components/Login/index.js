@@ -57,7 +57,7 @@ class Login extends Component {
 
     const userDetails = { email, password };
     const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/login`;
-    
+    console.log(process.env.REACT_APP_API_BASE_URL)
     const options = {
         method: "POST",
         headers: {
@@ -79,7 +79,7 @@ class Login extends Component {
   submitSuccess = jwtToken => {
     Cookies.set('jwt_token', jwtToken, { expires: 30 });
     localStorage.setItem('activeMenuId', 'DASHBOARD');
-    window.location.replace('/dashboard');
+    window.location.replace('/');
   }
 
   submitFailure = errorMessage => {

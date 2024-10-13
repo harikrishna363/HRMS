@@ -39,8 +39,19 @@ class AddEmployeeCsv extends Component{
     };
     
     handleComplete = async (employeeData) => {
-      const pendingToast = toast.loading("Adding Employee(s)...");
       this.setState({ isOpen: false });
+
+      for (const row of employeeData.rows) {
+        const {values} = row
+
+        if (!values.employee_id || !values.first_name || !values.last_name || !values.gender || !values.dob ||
+          !values.email || !values.phone_number || !values.employee_type || !values.password || !values.role
+        ) {
+          return toast.error('Required Fields cannot be empty')
+        }
+      }
+
+      const pendingToast = toast.loading("Adding Employee(s)...");
 
     try {
       const jwtToken = Cookies.get("jwt_token");
@@ -91,15 +102,13 @@ class AddEmployeeCsv extends Component{
         const data = [
           [
               'employee_id', 'first_name', 'last_name', 'gender', 'dob', 'email', 'phone_number',
-              'employee_type', 'education_level', 'job_title', 'designation', 'hire_date',
-              'salary', 'department', 'manager', 'effective_date', 'joining_date', 
-              'password', 'role', 'remarks'
+              'employee_type', 'password', 'role', 'education_level', 'job_title', 'designation', 'hire_date',
+              'salary', 'department', 'manager_id', 'effective_date', 'joining_date', 
+              'pan_number', 'aadhar_number', 'voter_id', 'remarks'
           ]
       ];
       
-    
-        // Convert the array data into CSV format
-        const csvContent = data.map(row => row.join(',')).join('\n');
+            const csvContent = data.map(row => row.join(',')).join('\n');
     
         // Create a Blob from the CSV content
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -212,60 +221,6 @@ class AddEmployeeCsv extends Component{
                     suggested_mappings: ["employee_type"],
                   },
                   {
-                    name: "education_level",
-                    key: "education_level",
-                    required: true,
-                    suggested_mappings: ["education_level"],
-                  },
-                  {
-                    name: "job_title",
-                    key: "job_title",
-                    required: true,
-                    suggested_mappings: ["job_title"],
-                  },
-                  {
-                    name: "designation",
-                    key: "designation",
-                    required: true,
-                    suggested_mappings: ["designation"],
-                  },
-                  {
-                    name: "hire_date",
-                    key: "hire_date",
-                    required: true,
-                    suggested_mappings: ["hire_date"],
-                  },
-                  {
-                    name: "salary",
-                    key: "salary",
-                    required: true,
-                    suggested_mappings: ["salary"],
-                  },
-                  {
-                    name: "department",
-                    key: "department",
-                    required: true,
-                    suggested_mappings: ["department"],
-                  },
-                  {
-                    name: "manager",
-                    key: "manager",
-                    required: true,
-                    suggested_mappings: ["manager"],
-                  },
-                  {
-                    name: "effective_date",
-                    key: "effective_date",
-                    required: true,
-                    suggested_mappings: ["effective_date"],
-                  },
-                  {
-                    name: "joining_date",
-                    key: "joining_date",
-                    required: true,
-                    suggested_mappings: ["joining_date"],
-                  },
-                  {
                     name: "password",
                     key: "password",
                     required: true,
@@ -278,11 +233,70 @@ class AddEmployeeCsv extends Component{
                     suggested_mappings: ["role"],
                   },
                   {
+                    name: "education_level",
+                    key: "education_level",
+                    suggested_mappings: ["education_level"],
+                  },
+                  {
+                    name: "job_title",
+                    key: "job_title",
+                    suggested_mappings: ["job_title"],
+                  },
+                  {
+                    name: "designation",
+                    key: "designation",
+                    suggested_mappings: ["designation"],
+                  },
+                  {
+                    name: "hire_date",
+                    key: "hire_date",
+                    suggested_mappings: ["hire_date"],
+                  },
+                  {
+                    name: "salary",
+                    key: "salary",
+                    suggested_mappings: ["salary"],
+                  },
+                  {
+                    name: "department",
+                    key: "department",
+                    suggested_mappings: ["department"],
+                  },
+                  {
+                    name: "manager_id",
+                    key: "manager_id",
+                    suggested_mappings: ["manager_id"],
+                  },
+                  {
+                    name: "effective_date",
+                    key: "effective_date",
+                    suggested_mappings: ["effective_date"],
+                  },
+                  {
+                    name: "joining_date",
+                    key: "joining_date",
+                    suggested_mappings: ["joining_date"],
+                  },
+                  {
+                    name: "pan_number",
+                    key: "pan_number",
+                    suggested_mappings: ["pan_number"],
+                  },
+                  {
+                    name: "aadhar_number",
+                    key: "aadhar_number",
+                    suggested_mappings: ["aadhar_number"],
+                  },
+                  {
+                    name: "voter_id",
+                    key: "voter_id",
+                    suggested_mappings: ["voter_id"],
+                  },
+                  {
                     name: "remarks",
                     key: "remarks",
                     suggested_mappings: ["remarks"],
                   },
-
                 ],
               }}
             />

@@ -41,9 +41,10 @@ class AttendanceReportModal extends React.Component {
                 },
             };
             const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/attendance-report?startDate=${startDate}&endDate=${endDate}`, options);
-            const data = await response.json()
-
+            
             if (!response.ok) {
+                const data = await response.json()
+                
                 toast.error(data.failure, {
                     autoClose: 4000
                 })

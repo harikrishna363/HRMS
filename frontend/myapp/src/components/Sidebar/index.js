@@ -21,7 +21,7 @@ const menuItemsList = [
     {
         id: "DASHBOARD",
         displayText: "Dashboard",
-        path: "/dashboard"
+        path: "/"
     },
     {
         id: "EMPLOYEE",

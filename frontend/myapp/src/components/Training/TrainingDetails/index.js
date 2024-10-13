@@ -262,6 +262,7 @@ class TrainingDetails extends Component {
                 isLoading: false,
                 autoClose: 4000, 
             });
+            this.fetchTrainingDetails()
 
         } catch (error) {
             toast.update(pendingToast, {

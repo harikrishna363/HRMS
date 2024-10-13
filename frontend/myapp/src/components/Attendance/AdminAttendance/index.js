@@ -228,6 +228,14 @@ class AdminAttendance extends Component {
   handleComplete = async (attendanceData) => {
     this.setState({ isOpen: false });
 
+    for (const row of attendanceData.rows) {
+      const {values} = row
+
+      if (!values.employee_id || !values.date || !values.status ) {
+        return toast.error('Required Fields cannot be empty')
+      }
+    }
+
     const pendingToast = toast.loading("Importing Attendance...");
 
     try {
@@ -534,8 +542,8 @@ class AdminAttendance extends Component {
         center: true,
         cell: row => (
             <div>
-                <EditStatusBtn onClick={(event) => this.handleLeaveStatus(event, row, 'Approved')} style={{borderColor: '#7ff088',}}>Approve</EditStatusBtn>
-                <EditStatusBtn onClick={(event) => this.handleLeaveStatus(event, row, 'Rejected')} style={{borderColor: '#eb877c'}}>Reject</EditStatusBtn>
+                <EditStatusBtn disabled={row.leave_status !== 'Pending'} onClick={(event) => this.handleLeaveStatus(event, row, 'Approved')} style={{borderColor: '#7ff088',}}>Approve</EditStatusBtn>
+                <EditStatusBtn disabled={row.leave_status !== 'Pending'} onClick={(event) => this.handleLeaveStatus(event, row, 'Rejected')} style={{borderColor: '#eb877c'}}>Reject</EditStatusBtn>
             </div>
         ),
         ignoreRowClick: true,

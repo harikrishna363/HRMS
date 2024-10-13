@@ -129,9 +129,10 @@ class EmployeeDetails extends Component{
                 autoClose: 4000, 
             });
 
-            this.fetchData();
+            this.fetcEmployeeDetails();
 
         } catch (error) {
+            console.log(error)
             toast.update(pendingToast, {
                 render: "Network error. Please try again later.",
                 type: "error",
@@ -408,11 +409,11 @@ class EmployeeDetails extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
-                        name="manager"
-                        value={employeeDetails.manager}
+                        name="manager_id"
+                        value={employeeDetails.manager_id}
                         onChange={this.handleInputChange}
                     />
-                    <label>Manager</label>
+                    <label>Manager ID</label>
                 </InputWrapper>
 
                 <InputWrapper>
@@ -558,16 +559,6 @@ class EmployeeDetails extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
-                        name="pan_number"
-                        value={employeeDetails.pan_number}
-                        onChange={this.handleInputChange}                    
-                    />
-                    <label>Pan Number</label>
-                </InputWrapper>
-
-                <InputWrapper>
-                    <Input
-                        type="text"
                         name="marital_status"
                         value={employeeDetails.marital_status}
                         onChange={this.handleInputChange}                    
@@ -620,8 +611,6 @@ class EmployeeDetails extends Component{
                         type="text"
                         name="cv"
                         value={employeeDetails.cv || " "}
-                        onClick={this.handleLinkClick}    
-                        style={{ cursor: 'pointer' }}
                         onChange={this.handleInputChange}
                     />
                     <label>CV</label>
@@ -630,10 +619,18 @@ class EmployeeDetails extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
+                        name="aadhar_number"
+                        value={employeeDetails.aadhar_number || " "}
+                        onChange={this.handleInputChange}
+                    />
+                    <label>Aadhar Number</label>
+                </InputWrapper>
+
+                <InputWrapper>
+                    <Input
+                        type="text"
                         name="aadhar_card"
                         value={employeeDetails.aadhar_card || " "}
-                        onClick={this.handleLinkClick}    
-                        style={{ cursor: 'pointer' }}
                         onChange={this.handleInputChange}
                     />
                     <label>Aadhar Card</label>
@@ -642,10 +639,18 @@ class EmployeeDetails extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
+                        name="pan_number"
+                        value={employeeDetails.pan_number}
+                        onChange={this.handleInputChange}                    
+                    />
+                    <label>Pan Number</label>
+                </InputWrapper>
+
+                <InputWrapper>
+                    <Input
+                        type="text"
                         name="pan_card"
                         value={employeeDetails.pan_card || " "}
-                        onClick={this.handleLinkClick}    
-                        style={{ cursor: 'pointer' }}
                         onChange={this.handleInputChange}
                     />
                     <label>Pan Card</label>
@@ -654,10 +659,20 @@ class EmployeeDetails extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
+                        name="voter_id"
+                        value={employeeDetails.voter_id || " "}
+                        onChange={this.handleInputChange}
+                    />
+                    <label>Voter Id</label>
+                </InputWrapper>
+
+                <div style={{display: 'flex', alignItems: 'flex-start'}}>
+
+                <InputWrapper>
+                    <Input
+                        type="text"
                         name="address_proof"
                         value={employeeDetails.address_proof || " "}
-                        onClick={this.handleLinkClick}    
-                        style={{ cursor: 'pointer' }}
                         onChange={this.handleInputChange}
                     />
                     <label>Address Proof</label>
@@ -668,26 +683,12 @@ class EmployeeDetails extends Component{
                         type="text"
                         name="passport_copy"
                         value={employeeDetails.passport_copy || " "}
-                        onClick={this.handleLinkClick}    
-                        style={{ cursor: 'pointer' }}
                         onChange={this.handleInputChange}
                     />
                     <label>Passport Copy</label>
                 </InputWrapper>
 
-                <div style={{display: 'flex', alignItems: 'flex-start'}}>
-
-                <InputWrapper>
-                    <Input
-                        type="text"
-                        name="voter_id"
-                        value={employeeDetails.voter_id || " "}
-                        onClick={this.handleLinkClick}    
-                        style={{ cursor: 'pointer' }}
-                        onChange={this.handleInputChange}
-                    />
-                    <label>Voter Id</label>
-                </InputWrapper>
+                
 
                 <InputWrapper>
                     <TextArea
@@ -699,6 +700,8 @@ class EmployeeDetails extends Component{
                     <label>Relevant Certificates</label>
                 </InputWrapper>
 
+                </div>
+
                 <InputWrapper>
                     <TextArea
                     name="special_certificates"
@@ -708,7 +711,6 @@ class EmployeeDetails extends Component{
                 />
                     <label>Special Certificates</label>
                 </InputWrapper>
-                </div>
 
                 <InputWrapper>
                     <TextArea

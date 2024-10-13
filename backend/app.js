@@ -90,9 +90,8 @@ const authenticateToken = (request, response, next) => {
   }
 }
 
-app.post('/send-mail', authenticateToken, async (req, res) => {
+app.post('/api/send-mail', authenticateToken, async (req, res) => {
   const { selectedTemplate, employeeMails } = req.body;
-  console.log(selectedTemplate)
 
   const query = `SELECT * FROM email_templates WHERE name = ?`;
 
@@ -103,6 +102,7 @@ app.post('/send-mail', authenticateToken, async (req, res) => {
       const mailOptions = {
         from: process.env.OUTLOOK_USER,
         to: email,
+        cc: process.env.OUTLOOK_CC,
         subject: template.subject,
         text: template.text,
         html: template.html
@@ -126,7 +126,7 @@ app.post('/send-mail', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/email-template/:templateName', authenticateToken, async (req, res) => {
+app.get('/api/email-template/:templateName', authenticateToken, async (req, res) => {
   const { templateName } = req.params;
   try {
     const template = await db.get('SELECT * FROM email_templates WHERE name = ?', [templateName]);
@@ -140,7 +140,7 @@ app.get('/email-template/:templateName', authenticateToken, async (req, res) => 
   }
 });
 
-app.get('/mail-templates', authenticateToken, async (req, res) => {
+app.get('/api/mail-templates', authenticateToken, async (req, res) => {
   const query = `SELECT * FROM email_templates`;
 
   try{
@@ -152,7 +152,7 @@ app.get('/mail-templates', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/update-mail-template-status/:name', authenticateToken, async (req, res) => {
+app.put('/api/update-mail-template-status/:name', authenticateToken, async (req, res) => {
   const { name } = req.params;
   const { status } = req.body;
 
@@ -167,7 +167,7 @@ app.put('/update-mail-template-status/:name', authenticateToken, async (req, res
   }
 });
 
-app.post('/add-mail-template', authenticateToken, async (req, res) => {
+app.post('/api/add-mail-template', authenticateToken, async (req, res) => {
   const {name, subject, text, html} = req.body
 
   const query = `INSERT INTO email_templates(name, subject, text, html)
@@ -182,7 +182,7 @@ app.post('/add-mail-template', authenticateToken, async (req, res) => {
   }
 })
 
-app.put('/update-email-template/:templateName', authenticateToken, async (req, res) => {
+app.put('/api/update-email-template/:templateName', authenticateToken, async (req, res) => {
   const { templateName } = req.params; 
   const { subject, text, html } = req.body; 
 
@@ -200,7 +200,7 @@ app.put('/update-email-template/:templateName', authenticateToken, async (req, r
 });
 
 // Login API
-app.post("/login", async (request, response) => {
+app.post("/api/login", async (request, response) => {
   const { email, password } = request.body;
 
   const selectUserQuery = `SELECT e.employee_id, e.first_name as name, e.password, r.role_name   
@@ -233,7 +233,7 @@ app.post("/login", async (request, response) => {
   }
 });
 
-app.post('/send-otp', async (req, res) => {
+app.post('/api/send-otp', async (req, res) => {
   const { email } = req.body;
 
   try{
@@ -266,7 +266,7 @@ app.post('/send-otp', async (req, res) => {
   }
 });
 
-app.post('/reset-password', async (req, res) => {
+app.post('/api/reset-password', async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   try{
@@ -284,7 +284,7 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
-app.post('/change-password', authenticateToken, async (req, res) => {
+app.post('/api/change-password', authenticateToken, async (req, res) => {
   const {employeeId, currentPassword, newPassword} = req.body
 
   const query = `UPDATE employee 
@@ -309,7 +309,7 @@ app.post('/change-password', authenticateToken, async (req, res) => {
   }
 })
 
-app.get('/active-employees-count', authenticateToken, async (req, res) => {
+app.get('/api/active-employees-count', authenticateToken, async (req, res) => {
 
   const query = `select
    count() as count  from employee
@@ -325,7 +325,7 @@ app.get('/active-employees-count', authenticateToken, async (req, res) => {
   
 });
 
-app.get('/active-cv-count', authenticateToken, async (req, res) => {
+app.get('/api/active-cv-count', authenticateToken, async (req, res) => {
 
   const query = `select
    count() as count  from cv_database
@@ -341,7 +341,7 @@ app.get('/active-cv-count', authenticateToken, async (req, res) => {
   
 });
 
-app.get('/employee', authenticateToken, async (req, res) => {
+app.get('/api/employee', authenticateToken, async (req, res) => {
   const query = `select 
     employee_id,
     first_name || ' ' || last_name as name,
@@ -360,7 +360,7 @@ app.get('/employee', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/active-employees', authenticateToken, async (req, res) => {
+app.get('/api/active-employees', authenticateToken, async (req, res) => {
   const query = `select 
     employee_id,
     first_name || ' ' || last_name as name,
@@ -379,7 +379,7 @@ app.get('/active-employees', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/employee/:employeeId', authenticateToken, async (req, res) => {
+app.get('/api/employee/:employeeId', authenticateToken, async (req, res) => {
   const {employeeId} = req.params
 
   const query = `SELECT * 
@@ -407,7 +407,7 @@ app.get('/employee/:employeeId', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/add-employee-form', authenticateToken, async (req, res) => {
+app.post('/api/add-employee-form', authenticateToken, async (req, res) => {
   const employeeData = req.body;
   console.log(employeeData)
 
@@ -430,7 +430,7 @@ app.post('/add-employee-form', authenticateToken, async (req, res) => {
       designation,
       salary,
       department,
-      manager,
+      manager_id,
       effective_date,
       joining_date,
       status,
@@ -474,7 +474,7 @@ app.post('/add-employee-form', authenticateToken, async (req, res) => {
       employeeData.designation,
       employeeData.salary,
       employeeData.department,
-      employeeData.manager,
+      employeeData.manager_id,
       employeeData.effectiveDate,
       employeeData.joiningDate,
       'Active',
@@ -496,20 +496,19 @@ app.post('/add-employee-form', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/add-employee-csv', authenticateToken, async (req, res) => {
-  console.log("hi")
+app.post('/api/add-employee-csv', authenticateToken, async (req, res) => {
   const employees = req.body; 
 
   const employeeQuery = `
     INSERT INTO employee (
       employee_id, first_name, last_name, gender, dob, email, password, phone_number, employee_type, education_level, 
-      job_title, designation, hire_date, salary, department, manager, 
+      job_title, designation, hire_date, salary, department, manager_id, 
       effective_date, joining_date, status, remarks
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  const employeePersonalQuery = `INSERT INTO employee_personal(employee_id)
-                                 VALUES (?)`
+  const employeePersonalQuery = `INSERT INTO employee_personal(employee_id, aadhar_number, pan_number, voter_id)
+                                 VALUES (?, ?, ?, ?)`
 
   const employeeRoleQuery = `
     INSERT INTO employee_role(employee_id, role_id)
@@ -547,7 +546,7 @@ app.post('/add-employee-csv', authenticateToken, async (req, res) => {
         values.hire_date ? values.hire_date.trim() : null,
         values.salary ? values.salary.trim() : null,
         values.department ? values.department.trim() : null,
-        values.manager ? values.manager.trim() : null,
+        values.manager_id ? values.manager.trim() : null,
         values.effective_date ? values.effective_date.trim() : null,
         values.joining_date ? values.joining_date.trim() : null,
         'Active',
@@ -558,7 +557,7 @@ app.post('/add-employee-csv', authenticateToken, async (req, res) => {
 
       await db.run(employeeQuery, employeeData);
 
-      await db.run(employeePersonalQuery, [values.employee_id])
+      await db.run(employeePersonalQuery, [values.employee_id, values.aadhar_number, values.pan_number, values.voter_id,])
 
       await db.run(employeeRoleQuery, [values.employee_id, roleId])
       
@@ -574,7 +573,7 @@ app.post('/add-employee-csv', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/employee-report', authenticateToken, async (req, res) => {
+app.get('/api/employee-report', authenticateToken, async (req, res) => {
   const query = `
           SELECT 
               e.employee_id, e.first_name, e.last_name, e.gender, e.dob, e.email, e.phone_number, 
@@ -629,7 +628,7 @@ app.get('/employee-report', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/update-photograph/:employeeId', authenticateToken, (req, res) => {
+app.put('/api/update-photograph/:employeeId', authenticateToken, (req, res) => {
   const { employeeId } = req.params;
 
   // Assuming you're using multer to handle file uploads
@@ -652,7 +651,7 @@ app.put('/update-photograph/:employeeId', authenticateToken, (req, res) => {
   });
 });
 
-app.put('/delete-photograph/:employeeId', authenticateToken, async (req, res) => {
+app.put('/api/delete-photograph/:employeeId', authenticateToken, async (req, res) => {
   const { employeeId } = req.params;
 
   try {
@@ -667,16 +666,16 @@ app.put('/delete-photograph/:employeeId', authenticateToken, async (req, res) =>
   }
 });
 
-app.put('/update-profile/:employee_id', authenticateToken, async (req, res) => {
+app.put('/api/update-profile/:employee_id', authenticateToken, async (req, res) => {
   const { employee_id } = req.params;
 
   const {
       first_name, last_name, gender, dob, email, phone_number, education_level, hire_date, employee_type,
-      job_title, designation, salary, department, manager, effective_date, joining_date, resignation_date,
+      job_title, designation, salary, department, manager_id, effective_date, joining_date, resignation_date,
       relieving_date, status, remarks, personal_email, religion, mother_tongue, educational_background,
       hobbies, anniversary_date, special_certifications, current_residential_address, permanent_residential_address,
       marital_status, spouse_name, children, emergency_contact, relation_with_contact, blood_type, location,
-      pan_number, cv, aadhar_card,  pan_card, address_proof, passport_copy, relevant_certificates, special_certificates, voter_id
+      pan_number, cv, aadhar_number, aadhar_card,  pan_card, address_proof, passport_copy, relevant_certificates, special_certificates, voter_id
   } = req.body;
 
   // SQL for updating Employee table
@@ -684,7 +683,7 @@ app.put('/update-profile/:employee_id', authenticateToken, async (req, res) => {
       UPDATE Employee 
       SET first_name = ?, last_name = ?, gender = ?, dob = ?, email = ?, phone_number = ?, 
           education_level = ?, hire_date = ?, employee_type = ?, job_title = ?, designation = ?, 
-          salary = ?, department = ?, manager = ?, effective_date = ?, joining_date = ?, 
+          salary = ?, department = ?, manager_id = ?, effective_date = ?, joining_date = ?, 
           resignation_date = ?, relieving_date = ?, status = ?, remarks = ?
       WHERE employee_id = ?
   `;
@@ -695,7 +694,7 @@ app.put('/update-profile/:employee_id', authenticateToken, async (req, res) => {
       SET personal_email = ?, religion = ?, mother_tongue = ?, educational_background = ?, hobbies = ?, 
           anniversary_date = ?, special_certifications = ?, current_residential_address = ?, 
           permanent_residential_address = ?, marital_status = ?, spouse_name = ?, children = ?, 
-          emergency_contact = ?, relation_with_contact = ?, blood_type = ?, cv = ?,
+          emergency_contact = ?, relation_with_contact = ?, blood_type = ?, cv = ?, aadhar_number = ?,
           aadhar_card = ?, location = ?, pan_number = ?, pan_card = ?, address_proof = ?, passport_copy = ?,
           relevant_certificates = ?, special_certificates = ?, voter_id = ?
       WHERE employee_id = ?
@@ -704,19 +703,19 @@ app.put('/update-profile/:employee_id', authenticateToken, async (req, res) => {
   try{
     await db.run(updateEmployeeQuery, 
       [first_name, last_name, gender, dob, email, phone_number, education_level, hire_date, employee_type,
-      job_title, designation, salary, department, manager, effective_date, joining_date, resignation_date,
+      job_title, designation, salary, department, manager_id, effective_date, joining_date, resignation_date,
       relieving_date, status, remarks, employee_id]
     )
 
     await db.run(updateEmployeePersonalQuery, [
       personal_email, religion, mother_tongue, educational_background, hobbies, anniversary_date, 
       special_certifications, current_residential_address, permanent_residential_address, marital_status, 
-      spouse_name, children, emergency_contact, relation_with_contact, blood_type, cv, aadhar_card,
+      spouse_name, children, emergency_contact, relation_with_contact, blood_type, cv, aadhar_number, aadhar_card, 
       location, pan_number, pan_card, address_proof, passport_copy, relevant_certificates, special_certificates,
       voter_id, employee_id
   ])
 
-  res.status(200).json({ success: ` Your Profile Updated Successfully` });
+  res.status(200).json({ success: `Your Profile Updated Successfully` });
 
   }catch (err){
     console.error('Error updating profile:', err);
@@ -725,18 +724,18 @@ app.put('/update-profile/:employee_id', authenticateToken, async (req, res) => {
 
 });
 
-app.put('/update-employee/:employee_id', authenticateToken, async (req, res) => {
+app.put('/api/update-employee/:employee_id', authenticateToken, async (req, res) => {
   const { employee_id } = req.params;
   
   const {
     role_name, first_name, last_name, gender, dob, email,
     phone_number, education_level, hire_date, employee_type,
-    job_title, designation, salary, department, manager, effective_date,
+    job_title, designation, salary, department, manager_id, effective_date,
     joining_date, resignation_date, relieving_date, status, remarks,
     personal_email, religion, mother_tongue, educational_background,
     hobbies, anniversary_date, special_certifications, current_residential_address, 
     permanent_residential_address, marital_status, spouse_name, children, 
-    emergency_contact, relation_with_contact, blood_type, cv, 
+    emergency_contact, relation_with_contact, blood_type, cv, aadhar_number,
     aadhar_card, location, pan_number, pan_card, address_proof, passport_copy, 
     relevant_certificates, special_certificates, voter_id
 
@@ -766,7 +765,7 @@ SET first_name = ?,
     designation = ?, 
     salary = ?, 
     department = ?, 
-    manager = ?, 
+    manager_id = ?, 
     effective_date = ?, 
     joining_date = ?, 
     resignation_date = ?, 
@@ -794,6 +793,7 @@ SET personal_email = ?,
     relation_with_contact = ?, 
     blood_type = ?, 
     cv = ?, 
+    aadhar_number = ?,
     aadhar_card = ?, 
     location = ?, 
     pan_number = ?, 
@@ -815,14 +815,14 @@ WHERE employee_id = ?
       [ first_name, last_name, gender, dob, 
         email, phone_number, education_level, hire_date, 
         employee_type, job_title, designation, salary, department, 
-        manager, effective_date, joining_date, resignation_date, 
+        manager_id, effective_date, joining_date, resignation_date, 
         relieving_date, status, remarks, employee_id ]
     )
 
     await db.run(updateEmployeePersonalQuery, [
       personal_email, religion, mother_tongue, educational_background, hobbies, anniversary_date, 
       special_certifications, current_residential_address, permanent_residential_address, marital_status, 
-      spouse_name, children, emergency_contact, relation_with_contact, blood_type, cv, aadhar_card,
+      spouse_name, children, emergency_contact, relation_with_contact, blood_type, cv, aadhar_number, aadhar_card,
       location, pan_number, pan_card, address_proof, passport_copy, relevant_certificates, special_certificates,
       voter_id, employee_id
   ])
@@ -838,7 +838,7 @@ WHERE employee_id = ?
 
 });
 
-app.put('/update-employee-status/:employee_id', authenticateToken, async (req, res) => {
+app.put('/api/update-employee-status/:employee_id', authenticateToken, async (req, res) => {
   const { employee_id } = req.params;
   const { status } = req.body;
 
@@ -853,7 +853,7 @@ app.put('/update-employee-status/:employee_id', authenticateToken, async (req, r
   }
 });
 
-app.get('/employee-leave-requests',authenticateToken, async (req, res) => {
+app.get('/api/employee-leave-requests',authenticateToken, async (req, res) => {
 
   const query = `SELECT l.leave_id, e.employee_id, e.first_name || ' ' || e.last_name as name, e.designation,
                   l.leave_type, l.start_date, l.end_date, l.leave_reason, l.leave_status, l.applied_date
@@ -872,7 +872,7 @@ app.get('/employee-leave-requests',authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/update-leave-status/:leaveId', authenticateToken, async (req, res) => {
+app.put('/api/update-leave-status/:leaveId', authenticateToken, async (req, res) => {
   const { status, leaveRequest } = req.body;
   const { leaveId } = req.params;
 
@@ -900,6 +900,41 @@ app.put('/update-leave-status/:leaveId', authenticateToken, async (req, res) => 
       }
     }
 
+    const query = `
+    SELECT e.email as employee_email, ee.email as manager_email, 
+    l.leave_type, l.start_date, l.end_date FROM leave_requests l
+    JOIN employee e ON l.employee_id = e.employee_id
+    JOIN employee ee ON e.manager_id = ee.employee_id
+    WHERE l.leave_id = ?;
+    `;
+
+    const {employee_email, manager_email, leave_type, start_date, end_date} = await db.get(query, [leaveId])
+
+    const textTemplate = `
+    Your ${leave_type} leave got ${status}
+
+    Leave Type: ${leave_type}
+
+    Start Date: ${start_date}
+
+    End Date: ${end_date}
+    `;
+    
+    const mailOptions = {
+      from: process.env.OUTLOOK_USER,
+      to: employee_email,
+      cc: manager_email,
+      subject: `Your ${leave_type} leave status`,
+      text: textTemplate,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent`);
+    } catch (error) {
+      console.error(`Error sending email:`, error);
+    }
+
     res.status(200).json({ success: `Leave ${status}` });
   } catch (err) {
     console.error('Error updating leave status:', err);
@@ -907,7 +942,7 @@ app.put('/update-leave-status/:leaveId', authenticateToken, async (req, res) => 
   }
 });
 
-app.get('/attendance', authenticateToken, async (req, res) => {
+app.get('/api/attendance', authenticateToken, async (req, res) => {
   const { startDate, endDate } = req.query;
 
   // Default to last 7 days if no date range is provided
@@ -964,7 +999,7 @@ app.get('/attendance', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/attendance/:employeeId', authenticateToken, async (req, res) => {
+app.get('/api/attendance/:employeeId', authenticateToken, async (req, res) => {
   const { employeeId } = req.params;
   const currentDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -983,12 +1018,17 @@ app.get('/attendance/:employeeId', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/attendance/login', authenticateToken, async (req, res) => {
+app.post('/api/attendance/login', authenticateToken, async (req, res) => {
   const { employeeId } = req.body;
   const currentDate = format(new Date(), 'yyyy-MM-dd');
 
-  const loginTime = format(new Date(), 'HH:mm');
-
+  const options = {
+    timeZone: 'Asia/Kolkata', // IST time zone
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+};
+const loginTime = new Date().toLocaleTimeString('en-US', options);
   const insertQuery = `
         INSERT INTO attendance (employee_id, date, login_time, status)
         VALUES (?, ?, ?, 'P')
@@ -1004,11 +1044,17 @@ app.post('/attendance/login', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/attendance/logout', authenticateToken, async (req, res) => {
+app.post('/api/attendance/logout', authenticateToken, async (req, res) => {
   const { employeeId } = req.body;
   const currentDate = format(new Date(), 'yyyy-MM-dd');
 
-  const logoutTime = format(new Date(), 'HH:mm');
+  const options = {
+    timeZone: 'Asia/Kolkata', // IST time zone
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  };
+  const logoutTime = new Date().toLocaleTimeString('en-US', options);
 
   const updateQuery = `
         UPDATE attendance
@@ -1026,7 +1072,7 @@ app.post('/attendance/logout', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/user-attendance/:employeeId', authenticateToken, async (req, res) => {
+app.get('/api/user-attendance/:employeeId', authenticateToken, async (req, res) => {
   const { startDate, endDate } = req.query;
   const { employeeId } = req.params;
 
@@ -1072,23 +1118,91 @@ app.get('/user-attendance/:employeeId', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/apply-leave', authenticateToken, async (req, res) => {
-  const {employeeId, leaveType, startDate, endDate,leaveReason} = req.body;
+app.post('/api/apply-leave', authenticateToken, async (req, res) => {
+  const { employeeId, leaveType, startDate, endDate, leaveReason } = req.body;
 
-  const query = `INSERT into leave_requests(employee_id, leave_type, start_date, end_date, leave_reason)
-                VALUES(?, ?, ?, ?, ?)
+  const start = new Date(startDate);
+  const startMonth = start.getMonth() + 1; 
+  const startYear = start.getFullYear();
+
+  const nonMedicalLeaves = `
+  SELECT 
+    SUM(julianday(end_date) - julianday(start_date) + 1) AS totalDays
+  FROM leave_requests
+  WHERE employee_id = ?
+    AND leave_type <> 'Medical'
+    AND leave_status = 'Approved'
+    AND CAST(strftime('%m', start_date) AS INTEGER) = ?
+    AND CAST(strftime('%Y', start_date) AS INTEGER) = ?
+`;
+
+  const insertQuery = `
+    INSERT INTO leave_requests(employee_id, leave_type, start_date, end_date, leave_reason)
+    VALUES (?, ?, ?, ?, ?)
   `;
 
-  try{
-    await db.run(query, [employeeId, leaveType, startDate, endDate, leaveReason]);
-    res.status(200).json({ success: 'Leave Requested successfully' });
-  }catch (err) {
+  try {
+    const result = await db.get(nonMedicalLeaves, [employeeId, startMonth, startYear]);
+    const totalDays = result.totalDays || 0; 
+
+    // Calculate the number of days being requested for the new leave
+    const requestedLeaveDays = Math.floor((new Date(endDate) - new Date(startDate)) / (1000 * 3600 * 24)) + 1;
+
+    // Check if the total leave days (existing + requested) exceed the 2-day limit
+    if (leaveType !== 'Medical'){
+      if (totalDays >= 2) {
+        return res.status(400).json({ failure: 'Your leave balance has been exhausted. Please get in touch with your Manager.' });
+      }
+      else if (totalDays + requestedLeaveDays > 2) {
+        return res.status(400).json({ failure: 'Your remaining leave balance is only one day.' });
+      }
+    }
+    
+    // If the limit is not exceeded, proceed to insert the leave request
+    await db.run(insertQuery, [employeeId, leaveType, startDate, endDate, leaveReason]);
+    
+    const mailsQuery = `
+    SELECT e.email AS employee_email, ee.email AS manager_email
+    FROM employee e
+    JOIN employee ee ON e.manager_id = ee.employee_id
+    WHERE e.employee_id = 'TM002';
+    `;
+
+    const {employee_email, manager_email} = await db.get(mailsQuery)
+
+    const textTemplate = `
+    Leave Type: ${leaveType}
+
+    Start Date: ${startDate}
+
+    End Date: ${endDate}
+
+    Reason: ${leaveReason}
+    `;
+    
+    const mailOptions = {
+      from: process.env.OUTLOOK_USER,
+      to: manager_email,
+      subject: `${employeeId} has applied for ${leaveType} leave`,
+      text: textTemplate,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent`);
+    } catch (error) {
+      console.error(`Error sending email:`, error);
+    }
+
+    return res.status(200).json({ success: 'Leave requested successfully' });
+
+  } catch (err) {
     console.error('Error leave requesting:', err);
-    res.status(500).json({ failure: 'Internal Server Error' });
+    return res.status(500).json({ failure: 'Internal Server Error' });
   }
 });
 
-app.get('/leave-requests', authenticateToken, async (req, res) => {
+app.get('/api/leave-requests', authenticateToken, async (req, res) => {
   const {employeeId} = req.query;
 
   const query = `SELECT leave_type, start_date, end_date, leave_reason, leave_status, applied_date
@@ -1106,7 +1220,7 @@ app.get('/leave-requests', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/attendance-report', authenticateToken, async (req, res) => {
+app.get('/api/attendance-report', authenticateToken, async (req, res) => {
   const { startDate, endDate } = req.query;
 
   const query = `
@@ -1142,8 +1256,7 @@ app.get('/attendance-report', authenticateToken, async (req, res) => {
           dateRange.push(currentDate.format('YYYY-MM-DD'));
           currentDate.add(1, 'days');
       }
-
-      // Initialize report data
+  
       const reportData = employees.map(employeeId => {
           const record = { employee_id: employeeId };
 
@@ -1189,8 +1302,9 @@ app.get('/attendance-report', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/payroll', authenticateToken,async (req, res) => {
+app.get('/api/payroll', authenticateToken,async (req, res) => {
   const { month } = req.query;
+
   if (!month) {
     return res.status(400).json({ error: 'Month is required' });
   }
@@ -1203,7 +1317,6 @@ app.get('/payroll', authenticateToken,async (req, res) => {
       e.designation AS designation, 
       e.email AS email, 
       p.payroll_id,
-      p.transaction_id AS transactionId,
       p.payment_mode AS paymentMode,
       p.bank_name AS bankName,
       p.account_number AS accountNumber,
@@ -1226,7 +1339,7 @@ app.get('/payroll', authenticateToken,async (req, res) => {
   }
 });
 
-app.post('/upload-attendance', authenticateToken, async (req, res) => {
+app.post('/api/upload-attendance', authenticateToken, async (req, res) => {
   const attendanceData = req.body;
 
   const uploadAttendanceQuery = `
@@ -1257,112 +1370,120 @@ app.post('/upload-attendance', authenticateToken, async (req, res) => {
   }
   });
 
-app.post('/upload-payroll', authenticateToken, async (req, res) => {
-    const payrollData = req.body
+app.post('/api/upload-payroll', authenticateToken, async (req, res) => {
+  const payrollData = req.body;
 
-    const uploadPayrollQuery = `
-      INSERT INTO Payroll (
-        employee_id, bank_name, account_number, payment_mode, transaction_id, payment_date,
-        pay_period, basic, hra, conveyance, medical, lta, special_allowance, other_allowance,
-        variable_pay, incentive, food_allowance, dress_allowance, telephone_internet,
-        newspaper_periodicals, it_tds, deductions, total_deductions, pf, pt, income_tax, others, loan,
-        insurance, esi, level, tax_regime, gross_salary, net_salary, payslip_attachment, remarks
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-  
-    try {
-      for (const row of payrollData.rows){
-        const values = row.values
+  const uploadPayrollQuery = `
+    INSERT INTO Payroll (
+      employee_id, bank_name, account_number, payment_mode, payment_date,
+      pay_period, basic, hra, conveyance, medical, lta, special_allowance, other_allowance,
+      variable_pay, incentive, food_allowance, dress_allowance, telephone_internet,
+      newspaper_periodicals, total_deductions, pf_number, pf, pt, income_tax, others, loan,
+      insurance, esi, level, tax_regime, gross_salary, net_salary, payslip_attachment, remarks
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-        const employeeDetailsQuery = `
-                SELECT e.first_name || ' ' || e.last_name as name, e.designation, e.joining_date, ep.location, ep.pan_number
-                FROM employee e  join employee_personal ep on e.employee_id = ep.employee_id
-                WHERE e.employee_id = ?
-            `;
-            const employeeDetails = await db.get(employeeDetailsQuery, [values.employee_id.trim()]);
+  const isValidPayPeriod = (pay_period) => {
+    const regex = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
+    return regex.test(pay_period);
+  }
 
-            if (!employeeDetails) {
-                throw new Error(`Employee details not found for employee_id: ${values.employee_id.trim()}`);
-            }
+  try {
+      // Start transaction
+      await db.run('BEGIN TRANSACTION');
 
-            // Merge additional details into `values` object
-            values.name = employeeDetails.name;
-            values.designation = employeeDetails.designation;
-            values.joining_date = employeeDetails.joining_date;
-            values.amount_in_words = capitalizeFirstLetter(numberToWords.toWords(parseFloat(values.net_salary || 0))) ;
-            values.location = employeeDetails.location;
-            values.pan_number = employeeDetails.pan_number;
-            values.total_earnings = parseFloat(values.basic || 0) + parseFloat(values.hra || 0) + parseFloat(values.conveyance || 0)
-             + parseFloat(values.telephone_internet || 0) + parseFloat(values.medical || 0) + parseFloat(values.food_allowance || 0)
-             + parseFloat(values.dress_allowance || 0) + parseFloat(values.lta || 0) + 
-             + parseFloat(values.other_allowance || 0) + parseFloat(values.variable_pay || 0);
-            values.total_deductions = parseFloat(values.pt || 0) + parseFloat(values.income_tax || 0) + parseFloat(values.pf || 0) ; // or any other deductions you have
+      for (const row of payrollData.rows) {
+          const values = row.values;
 
+          // Validate pay_period
+          if (!isValidPayPeriod(values.pay_period)) {
+              throw new Error('Invalid Pay Period. Format should be Short Month Format (e.g., Jan 2024)');
+          }
 
-        const data = [
-          values.employee_id ? values.employee_id.trim() : null,
-          values.bank_name ? values.bank_name.trim() : null,
-          values.account_number ? values.account_number.trim() : null,
-          values.payment_mode ? values.payment_mode.trim() : null,
-          values.transaction_id ? values.transaction_id.trim() : null,
-          values.payment_date ? values.payment_date.trim() : null,
-          values.pay_period ? values.pay_period.trim() : null,
-          values.basic ? values.basic.trim() : null,
-          values.hra ? values.hra.trim() : null,
-          values.conveyance ? values.conveyance.trim() : null,
-          values.medical ? values.medical.trim() : null,
-          values.lta ? values.lta.trim() : null,
-          values.special_allowance ? values.special_allowance.trim() : null,
-          values.other_allowance ? values.other_allowance.trim() : null,
-          values.variable_pay ? values.variable_pay.trim() : null,
-          values.incentive ? values.incentive.trim() : null,
-          values.food_allowance ? values.food_allowance.trim() : null,
-          values.dress_allowance ? values.dress_allowance.trim() : null,
-          values.telephone_internet ? values.telephone_internet.trim() : null,
-          values.newspaper_periodicals ? values.newspaper_periodicals.trim() : null,
-          values.it_tds ? values.it_tds.trim() : null,
-          values.deductions ? values.deductions.trim() : null,
-          values.total_deductions ? values.total_deductions.trim() : null,
-          values.pf ? values.pf.trim() : null,
-          values.pt ? values.pt.trim() : null,
-          values.income_tax ? values.income_tax.trim() : null,
-          values.others ? values.others.trim() : null,
-          values.loan ? values.loan.trim() : null,
-          values.insurance ? values.insurance.trim() : null,
-          values.esi ? values.esi.trim() : null,
-          values.level ? values.level.trim() : null,
-          values.tax_regime ? values.tax_regime.trim() : null,
-          values.gross_salary ? values.gross_salary.trim() : null,
-          values.net_salary ? values.net_salary.trim() : null,
-          null,
-          values.remarks ? values.remarks.trim() : null
-        ];
+          const employeeDetailsQuery = `
+              SELECT e.first_name || ' ' || e.last_name as name, e.designation, e.joining_date, ep.location, ep.pan_number
+              FROM employee e 
+              JOIN employee_personal ep ON e.employee_id = ep.employee_id
+              WHERE e.employee_id = ?
+          `;
 
-        const htmlTemplate = fs.readFileSync(path.join(__dirname, 'payslip_template.html'), 'utf8');
-        const renderedHtml = htmlTemplate.replace(/{{\s*([^\s]+)\s*}}/g, (_, key) => values[key.trim()]);
+          const employeeDetails = await db.get(employeeDetailsQuery, [values.employee_id.trim()]);
+          if (!employeeDetails) {
+              throw new Error(`Employee not found for employee_id: ${values.employee_id.trim()}`);
+          }
 
-        const pdfBuffer = await new Promise((resolve, reject) => {
-          pdf.create(renderedHtml).toBuffer((err, buffer) => {
-              if (err) return reject(err);
-              resolve(buffer);
+          // Set other values based on employee details
+          values.name = employeeDetails.name;
+          values.designation = employeeDetails.designation || '-';
+          values.joining_date = employeeDetails.joining_date || '-';
+          values.amount_in_words = capitalizeFirstLetter(numberToWords.toWords(parseFloat(values.net_salary || 0)));
+          values.location = employeeDetails.location || '-';
+          values.pan_number = employeeDetails.pan_number || '-';
+
+          const data = [
+              values.employee_id ? values.employee_id.trim() : null,
+              values.bank_name ? values.bank_name.trim() : null,
+              values.account_number ? values.account_number.trim() : null,
+              values.payment_mode ? values.payment_mode.trim() : null,
+              values.payment_date ? values.payment_date.trim() : null,
+              values.pay_period ? values.pay_period.trim() : null,
+              values.basic ? values.basic.trim() : null,
+              values.hra ? values.hra.trim() : null,
+              values.conveyance ? values.conveyance.trim() : null,
+              values.medical ? values.medical.trim() : null,
+              values.lta ? values.lta.trim() : null,
+              values.special_allowance ? values.special_allowance.trim() : null,
+              values.other_allowance ? values.other_allowance.trim() : null,
+              values.variable_pay ? values.variable_pay.trim() : null,
+              values.incentive ? values.incentive.trim() : null,
+              values.food_allowance ? values.food_allowance.trim() : null,
+              values.dress_allowance ? values.dress_allowance.trim() : null,
+              values.telephone_internet ? values.telephone_internet.trim() : null,
+              values.newspaper_periodicals ? values.newspaper_periodicals.trim() : null,
+              values.total_deductions ? values.total_deductions.trim() : null,
+              values.pf_number ? values.pf_number.trim() : null,
+              values.pf ? values.pf.trim() : null,
+              values.pt ? values.pt.trim() : null,
+              values.income_tax ? values.income_tax.trim() : null,
+              values.others ? values.others.trim() : null,
+              values.loan ? values.loan.trim() : null,
+              values.insurance ? values.insurance.trim() : null,
+              values.esi ? values.esi.trim() : null,
+              values.level ? values.level.trim() : null,
+              values.tax_regime ? values.tax_regime.trim() : null,
+              values.gross_salary ? values.gross_salary.trim() : null,
+              values.net_salary ? values.net_salary.trim() : null,
+              null,
+              values.remarks ? values.remarks.trim() : null
+          ];
+
+          // Generate payslip PDF and attach
+          const htmlTemplate = fs.readFileSync(path.join(__dirname, 'payslip_template.html'), 'utf8');
+          const renderedHtml = htmlTemplate.replace(/{{\s*([^\s]+)\s*}}/g, (_, key) => values[key.trim()]);
+          const pdfBuffer = await new Promise((resolve, reject) => {
+              pdf.create(renderedHtml).toBuffer((err, buffer) => {
+                  if (err) return reject(err);
+                  resolve(buffer);
+              });
           });
-      });
 
-      data[data.length - 2] = pdfBuffer;
-      
-  
-      await db.run(uploadPayrollQuery, data);
+          data[data.length - 2] = pdfBuffer;
 
+          // Insert data into Payroll table
+          await db.run(uploadPayrollQuery, data);
       }
 
+      // If everything is successful, commit the transaction
+      await db.run('COMMIT');
       res.status(201).json({ success: 'Payroll Imported Successfully' });
-    } catch (err) {
+  } catch (err) {
       console.error('Error inserting payroll data:', err);
-      res.status(500).json({ failure: 'Internal Server Error' });
-    } 
-  });
+      await db.run('ROLLBACK');
+      res.status(500).json({ failure: err.message });
+  }
+});
 
-  app.get('/payslip/:payroll_id', authenticateToken, async (req, res) => {
+  app.get('/api/payslip/:payroll_id', authenticateToken, async (req, res) => {
     const { payroll_id } = req.params;
     
     try {
@@ -1384,13 +1505,12 @@ app.post('/upload-payroll', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/user-payroll/:employeeId', authenticateToken, async (req, res) => {
+app.get('/api/user-payroll/:employeeId', authenticateToken, async (req, res) => {
   const {employeeId} = req.params
   const {month} = req.query
 
   const query = `SELECT 
                   p.payroll_id,
-                  p.transaction_id,
                   p.payment_mode,
                   p.bank_name,
                   p.account_number,
@@ -1408,7 +1528,7 @@ app.get('/user-payroll/:employeeId', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/trainings', authenticateToken, async (req, res) => {
+app.get('/api/trainings', authenticateToken, async (req, res) => {
   const query = `SELECT * FROM training
                  ORDER BY training_id DESC
                  `;
@@ -1422,7 +1542,7 @@ app.get('/trainings', authenticateToken, async (req, res) => {
   }
 })
 
-app.get('/user-trainings/:employeeId', authenticateToken, async (req, res) => {
+app.get('/api/user-trainings/:employeeId', authenticateToken, async (req, res) => {
   const {employeeId} = req.params
 
   const query = `SELECT * FROM training t
@@ -1440,7 +1560,7 @@ app.get('/user-trainings/:employeeId', authenticateToken, async (req, res) => {
   }
 })
 
-app.post('/add-training', authenticateToken, async (req, res) => {
+app.post('/api/add-training', authenticateToken, async (req, res) => {
   const {subject, startDate, endDate, trainer, hours, method, remarks} = req.body
 
   const query = `INSERT INTO training(training_subject, start_date, end_date, trainer_name, training_hours, training_method, remarks)
@@ -1456,7 +1576,7 @@ app.post('/add-training', authenticateToken, async (req, res) => {
 
 });
 
-app.get('/training/:trainingId', authenticateToken, async (req, res) => {
+app.get('/api/training/:trainingId', authenticateToken, async (req, res) => {
   const { trainingId } = req.params;
 
   const trainingQuery = `
@@ -1491,7 +1611,7 @@ app.get('/training/:trainingId', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/update-training/:trainingId', authenticateToken, async (req, res) => {
+app.put('/api/update-training/:trainingId', authenticateToken, async (req, res) => {
   const { trainingId } = req.params;
   const { training_subject, start_date, end_date, trainer_name, training_hours, training_method, progress_status, active_status, remarks } = req.body;
 
@@ -1515,7 +1635,7 @@ app.put('/update-training/:trainingId', authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/training/:trainingId/register-employees", authenticateToken, async (req, res) => {
+app.post("/api/training/:trainingId/register-employees", authenticateToken, async (req, res) => {
   const { trainingId } = req.params;
   const  employees  = req.body;
 
@@ -1536,7 +1656,7 @@ app.post("/training/:trainingId/register-employees", authenticateToken, async (r
   }
 });
 
-app.put('/update-training-status/:training_id', authenticateToken, async (req, res) => {
+app.put('/api/update-training-status/:training_id', authenticateToken, async (req, res) => {
   const { training_id } = req.params;
   const { status } = req.body;
 
@@ -1551,7 +1671,7 @@ app.put('/update-training-status/:training_id', authenticateToken, async (req, r
   }
 });
 
-app.put('/update-employee-training-status/:training_id', authenticateToken, async (req, res) => {
+app.put('/api/update-employee-training-status/:training_id', authenticateToken, async (req, res) => {
   const {training_id} = req.params
   const { employee_id, status } = req.body;
 
@@ -1567,7 +1687,7 @@ app.put('/update-employee-training-status/:training_id', authenticateToken, asyn
   }
 });
 
-app.get('/training-report', authenticateToken, async (req, res) => {
+app.get('/api/training-report', authenticateToken, async (req, res) => {
   try {
       // Query to fetch training details along with registered employees
       const query = `
@@ -1620,7 +1740,7 @@ app.get('/training-report', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/cv', authenticateToken, async (req, res) => {
+app.get('/api/cv', authenticateToken, async (req, res) => {
   const query = `SELECT * FROM cv_database`
 
   try{
@@ -1632,16 +1752,13 @@ app.get('/cv', authenticateToken, async (req, res) => {
   }
 })
 
-app.post('/upload-cv', authenticateToken, async (req, res) => {
+app.post('/api/upload-cv', authenticateToken, async (req, res) => {
   const cvs = req.body; 
 
   const cvInsertQuery = `
     INSERT INTO cv_database (
-      name, post_applied, gender, dob, highest_qualification, university, 
-      contact_address, current_position, phone_no, email_id, linkedin, 
-      languages_familiar, experience, accomplishments, other_details, source, 
-      date_received, samples_attached, cv_attachment, remarks
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      name, post_applied, phone_no, email_id, experience
+    ) VALUES (?, ?, ?, ?, ?)
   `;
 
   try {
@@ -1651,24 +1768,9 @@ app.post('/upload-cv', authenticateToken, async (req, res) => {
       const cvData = [
         values.name ? values.name.trim() : null,
         values.post_applied ? values.post_applied.trim() : null,
-        values.gender ? values.gender.trim() : null,
-        values.dob ? values.dob.trim() : null,
-        values.highest_qualification ? values.highest_qualification.trim() : null,
-        values.university ? values.university.trim() : null,
-        values.contact_address ? values.contact_address.trim() : null,
-        values.current_position ? values.current_position.trim() : null,
         values.phone_no ? values.phone_no.trim() : null,
         values.email_id ? values.email_id.trim() : null,
-        values.linkedin ? values.linkedin.trim() : null,
-        values.languages_familiar ? values.languages_familiar.trim() : null,
         values.experience ? values.experience.trim() : null,
-        values.accomplishments ? values.accomplishments.trim() : null,
-        values.other_details ? values.other_details.trim() : null,
-        values.source ? values.source.trim() : null,
-        values.date_received ? values.date_received.trim() : null,
-        values.samples_attached ? values.samples_attached.trim() : null,
-        values.cv_attachment ? values.cv_attachment.trim() : null,
-        values.remarks ? values.remarks.trim() : null
       ];
 
       await db.run(cvInsertQuery, cvData)
@@ -1681,7 +1783,7 @@ app.post('/upload-cv', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/update-candidate-status/:candidate_id', authenticateToken, async (req, res) => {
+app.put('/api/update-candidate-status/:candidate_id', authenticateToken, async (req, res) => {
   const { candidate_id } = req.params;
   const { status } = req.body;
 
@@ -1696,7 +1798,7 @@ app.put('/update-candidate-status/:candidate_id', authenticateToken, async (req,
   }
 });
 
-app.get('/cv/:candidate_id', authenticateToken, async (req, res) => {
+app.get('/api/cv/:candidate_id', authenticateToken, async (req, res) => {
   const { candidate_id } = req.params;
 
   const query = `
@@ -1718,7 +1820,7 @@ app.get('/cv/:candidate_id', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/update-cv/:candidate_id', authenticateToken, async (req, res) => {
+app.put('/api/update-cv/:candidate_id', authenticateToken, async (req, res) => {
   const { candidate_id } = req.params;
   const {
     name,

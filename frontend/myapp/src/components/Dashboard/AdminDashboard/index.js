@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { Container, RetryBtn } from "../../Source/styledComponent";
 
 const Card = styled.div`
+  height: 22%;
   width: 20%;
   background-color: #f9fafc; 
   border: 1px solid #e0e0e0; 

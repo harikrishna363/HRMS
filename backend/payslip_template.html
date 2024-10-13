@@ -70,18 +70,21 @@
             </tr>
             <tr>
                 <th>Function:</th><td></td>
-                <th>Income Tax Number (PAN):</th><td>{{pan_number}}</td>
+                <th>PAN:</th><td>{{pan_number}}</td>
             </tr>
             <tr>
                 <th>Designation:</th><td>{{designation}}</td>
-                <th>Universal Account Number (UAN):</th><td></td>
+                <th>UAN:</th><td>{{pf_number}}</td>
             </tr>
             <tr>
                 <th>Location:</th><td>{{location}}</td>
-                <th>PR Account Number (PRAN):</th><td></td>
+                <th>Insurance:</th><td>{{insurance}}</td>
             </tr>
             <tr>
                 <th>Bank Details:</th><td>{{account_number}}, {{bank_name}}</td>
+                <th>ESI:</th><td>{{esi}}</td>
+            </tr>
+            <tr>
                 <th>Date of Joining:</th><td>{{joining_date}}</td>
             </tr>
         </table>
@@ -93,16 +96,20 @@
             </thead>
             <tbody>
                 <tr><td>Basic Pay</td><td>{{basic}}</td><td>PT</td> <td>{{pt}}</td> </tr>
-                <tr><td>HRA</td><td>{{hra}}</td><td>Income Tax</td><td>{{income_tax}}</td></tr>
-                <tr><td>Conveyance</td><td>{{conveyance}}</td><td>Employee Provident Fund</td><td>{{pf}}</td></tr>
+                <tr><td>HRA</td><td>{{hra}}</td><td>PF</td> <td>{{pf}}</td> </tr>
+                <tr><td>Conveyance</td><td>{{conveyance}}</td><td>Income Tax</td><td>{{income_tax}}</td></tr>
+                <tr><td>Medical Allowance</td><td>{{medical}}</td><td>Loan</td> <td>{{loan}}</td> </tr>
+                <tr><td>Food Allowance</td><td>{{food_allowance}}</td><td>Others</td> <td>{{others}}</td> </tr>
                 <tr><td>Telephone & Internet Allowance</td><td>{{telephone_internet}}</td><td></td><td></td></tr>
-                <tr><td>Medical Allowance</td><td>{{medical}}</td><td></td><td></td></tr>
-                <tr><td>Food Allowance</td><td>{{food_allowance}}</td><td></td><td></td></tr>
                 <tr><td>Dress Allowance</td><td>{{dress_allowance}}</td><td></td><td></td></tr>
                 <tr><td>LTA</td><td>{{lta}}</td><td></td><td></td></tr>
+                <tr><td>Newspaper Periodicals</td><td>{{newspaper_periodicals}}</td><td></td><td></td></tr>
+                <tr><td>Special Allowance</td><td>{{special_allowance}}</td><td></td><td></td></tr>
                 <tr><td>Other Allowance</td><td>{{other_allowance}}</td><td></td><td></td></tr>
+                <tr><td>Incentive</td><td>{{incentive}}</td><td></td><td></td></tr>
                 <tr><td>Variable Pay</td><td>{{variable_pay}}</td><td></td><td></td></tr>
-                <tr><td class="total">Total Earnings</td><td class="total">{{total_earnings}}</td><td class="total">Total Deductions</td><td class="total">{{total_deductions}}</td></tr>
+
+                <tr><td class="total">Total Earnings</td><td class="total">{{gross_salary}}</td><td class="total">Total Deductions</td><td class="total">{{total_deductions}}</td></tr>
                 
                 
             </tbody>

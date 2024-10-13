@@ -46,6 +46,15 @@ class ApplyLeaveModal extends Component {
             toast.error('Enter Valid Dates')
             return
         }
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffInTime = end - start;
+        const diffInDays = diffInTime / (1000 * 3600 * 24) + 1;
+
+        if (leaveType !== 'Medical' && diffInDays > 2) {
+            toast.error('Leave Period must be less than or equal to 2 days');
+            return;
+        }
 
         const pendingToast = toast.loading(`Requesting Leave...`);
 
@@ -138,8 +147,7 @@ class ApplyLeaveModal extends Component {
                         >
                             <option value="" disabled>Select Leave Type</option>
                             <option value="Casual">Casual</option>
-                            <option value="Sick">Sick</option>
-                            <option value="Other">Other</option>
+                            <option value="Medical">Medical</option>
                         </SelectInput>
                         <label>Leave Type</label>
                     </InputWrapper>

@@ -43,52 +43,80 @@ class AdminPayroll extends Component{
 
     handleComplete = async (payrollData) => {
       this.setState({ isOpen: false });
+  
+      for (const row of payrollData.rows) {
+          const { values } = row;
 
+          // Ensure required fields are filled
+          if (!values.employee_id || !values.level || !values.account_number || !values.bank_name || !values.pf_number || 
+              !values.insurance || !values.esi || !values.tax_regime || !values.pay_period || !values.basic || 
+              !values.hra || !values.conveyance || !values.medical || !values.food_allowance || !values.dress_allowance || 
+              !values.telephone_internet || !values.lta || !values.newspaper_periodicals || !values.special_allowance || 
+              !values.other_allowance || !values.variable_pay || !values.incentive || !values.gross_salary || 
+              !values.pf || !values.pt || !values.income_tax || !values.others || !values.loan || !values.total_deductions || 
+              !values.net_salary || !values.payment_mode || !values.payment_date || !values.remarks) {
+              return toast.error('Required Fields cannot be empty');
+          }
+  
+          // Set decimal fields to empty string if their value is 0
+          const decimalFields = ['basic', 'hra', 'conveyance', 'medical', 'lta', 'special_allowance', 
+                                 'other_allowance', 'variable_pay', 'incentive', 'food_allowance', 
+                                 'dress_allowance', 'telephone_internet', 'newspaper_periodicals', 
+                                 'total_deductions', 'pf', 'pt', 'income_tax', 'others', 'loan', 
+                                 'insurance', 'esi', 'gross_salary', 'net_salary'];
+  
+          decimalFields.forEach(field => {
+              if (values[field] === '0') {
+                  values[field] = "";
+              }
+          });
+      }
+  
       const pendingToast = toast.loading("Importing Payroll...");
-
+  
       try {
-        const jwtToken = Cookies.get("jwt_token");
-        const options = {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${jwtToken}`,
-          },
-          body: JSON.stringify(payrollData),
-      };
-
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/upload-payroll`, options);
-        const data = await response.json()
+          const jwtToken = Cookies.get("jwt_token");
+          const options = {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${jwtToken}`,
+              },
+              body: JSON.stringify(payrollData),
+          };
   
-        if (!response.ok) {
+          const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/upload-payroll`, options);
+          const data = await response.json();
+  
+          if (!response.ok) {
+              toast.update(pendingToast, {
+                  render: data.failure,
+                  type: "error",
+                  isLoading: false,
+                  autoClose: 4000,
+              });
+  
+              return;
+          }
+  
           toast.update(pendingToast, {
-            render: data.failure,
-            type: "error",
-            isLoading: false,
-            autoClose: 4000,  
-        });
-        
-        return
-        }
+              render: data.success,
+              type: "success",
+              isLoading: false,
+              autoClose: 4000,
+          });
   
-        toast.update(pendingToast, {
-          render: data.success,
-          type: "success",
-          isLoading: false,
-          autoClose: 4000,  
-      });
-
-      this.fetchPayrollData()
-
+          this.fetchPayrollData();
+  
       } catch (error) {
-        toast.update(pendingToast, {
-          render: "Network error. Please try again later.",
-          type: "error",
-          isLoading: false,
-          autoClose: 4000,  
-      });        
-    }
-    };
+          toast.update(pendingToast, {
+              render: "Network error. Please try again later.",
+              type: "error",
+              isLoading: false,
+              autoClose: 4000,
+          });
+      }
+  };  
   
     fetchPayrollData = async () => {
       this.setState({apiStatus: apiStatusConstants.loading})
@@ -109,7 +137,7 @@ class AdminPayroll extends Component{
 
         if (!response.ok) {
           this.setState({apiStatus: apiStatusConstants.failure})
-          return
+          return 
         }
 
         const data = await response.json();
@@ -180,11 +208,11 @@ class AdminPayroll extends Component{
         // Example data
         const data = [
           [
-              'employee_id', 'bank_name', 'account_number', 'payment_mode', 'transaction_id', 'payment_date',
-              'pay_period', 'basic', 'hra', 'conveyance', 'medical', 'lta', 'special_allowance', 'other_allowance',
-              'variable_pay', 'incentive', 'food_allowance', 'dress_allowance', 'telephone_internet', 
-              'newspaper_periodicals', 'it_tds', 'deductions', 'total_deductions', 'pf', 'pt', 'income_tax', 'others', 'loan', 
-              'insurance', 'esi', 'level', 'tax_regime', 'gross_salary', 'net_salary', 'remarks'
+              'employee_id', 'level', 'account_number', 
+              'bank_name', 'pf_number(UAN)', 'insurance', 'esi', 'tax_regime', 'pay_period', 'basic', 'hra', 'conveyance', 
+              'medical',  'food_allowance', 'dress_allowance', 'telephone_internet', 'lta', 'newspaper_periodicals', 
+              'special_allowance', 'other_allowance', 'variable_pay', 'incentive', 'gross_salary', 'pf', 'pt', 'income_tax', 
+              'others', 'loan', 'total_deductions', 'net_salary', 'payment_mode', 'payment_date', 'remarks'
           ]
       ];
       
@@ -226,20 +254,64 @@ class AdminPayroll extends Component{
       }
 
         const columns = [
-          { name: "ID", selector: row => row.employeeId, sortable: true, width: '80px' },
-          { name: "Employee Name", selector: row => row.employeeName, sortable: true },
-          { name: "Department", selector: row => row.department, sortable: true },
-          { name: "Designation", selector: row => row.designation },
-          { name: "Email", selector: row => row.email },
-          { name: "Transaction ID", selector: row => row.transactionId },
-          { name: "Payment Mode", selector: row => row.paymentMode },
-          { name: "Bank Name", selector: row => row.bankName },
-          { name: "Account Number", selector: row => row.accountNumber },
-          { name: "Payment Date", selector: row => row.paymentDate, sortable: true },
-          { name: "Pay Period", selector: row => row.payPeriod },
-          { name: "Net Salary", selector: row => row.netSalary, sortable: true },
+          { name: <p>ID</p>, selector: row => row.employeeId, sortable: true, width: '80px', 
+            cell: (row) => (
+              <p>{row.employeeId}</p>
+            )
+            
+           },
+          { name: <p>Employee Name</p>, width: '150px', selector: row => row.employeeName, sortable: true,
+            cell: (row) => (
+              <p>{row.employeeName}</p>
+            )
+           },
+          { name: <p>Department</p>,width: '150px', selector: row => row.department, sortable: true,
+            cell: (row) => (
+              <p>{row.department}</p>
+            )
+           },
+          { name: <p>Designation</p>,width: '150px', selector: row => row.designation,
+            cell: (row) => (
+              <p>{row.designation}</p>
+            )
+           },
+          { name: <p>Email</p>, width: '150px', selector: row => row.email,
+            cell: (row) => (
+              <p>{row.email}</p>
+            )
+           },
+          { name: <p>Payment Mode</p>,width: '150px', selector: row => row.paymentMode,
+            cell: (row) => (
+              <p>{row.paymentMode}</p>
+            )
+           },
+          { name: <p>Bank Name</p>,width: '150px', selector: row => row.bankName,
+            cell: (row) => (
+              <p>{row.bankName}</p>
+            )
+           },
+          { name: <p>Account Number</p>,width: '150px', selector: row => row.accountNumber,
+            cell: (row) => (
+              <p>{row.accountNumber}</p>
+            )
+           },
+          { name: <p>Payment Date</p>,width: '150px', selector: row => row.paymentDate, sortable: true,
+            cell: (row) => (
+              <p>{row.paymentDate}</p>
+            )
+           },
+          { name: <p>Pay Period</p>,width: '150px', selector: row => row.payPeriod,
+            cell: (row) => (
+              <p>{row.payPeriod}</p>
+            )
+           },
+          { name: <p>Net Salary</p>,width: '150px', selector: row => row.netSalary, sortable: true,
+            cell: (row) => (
+              <p>{row.netSalary}</p>
+            )
+           },
           {
-            name: "Action",
+            name: "Action", width: '150px', center: true,
             cell: row => <ViewPayslip onClick={() => this.handleAction(row)}>View Payslip</ViewPayslip>
           }
         ]
@@ -305,7 +377,18 @@ class AdminPayroll extends Component{
                     key: "employee_id",
                     required: true,
                     suggested_mappings: ["employee_id"],
-                    },
+                    }, 
+                    {
+                    name: "level",
+                    key: "level",
+                    suggested_mappings: ["level"],
+                    },   
+                    {
+                    name: "account_number",
+                    key: "account_number",
+                    required: true,
+                    suggested_mappings: ["account_number"],
+                    },                                     
                     {
                     name: "bank_name",
                     key: "bank_name",
@@ -313,35 +396,32 @@ class AdminPayroll extends Component{
                     suggested_mappings: ["bank_name"],
                     },
                     {
-                    name: "account_number",
-                    key: "account_number",
+                    name: "pf_number(UAN)",
+                    key: "pf_number",
                     required: true,
-                    suggested_mappings: ["account_number"],
+                    suggested_mappings: ["pf_number(UAN)"],
                     },
                     {
-                    name: "payment_mode",
-                    key: "payment_mode",
-                    required: true,
-                    suggested_mappings: ["payment_mode"],
+                    name: "insurance",
+                    key: "insurance",
+                    suggested_mappings: ["insurance"],
                     },
                     {
-                    name: "transaction_id",
-                    key: "transaction_id",
-                    required: true,
-                    suggested_mappings: ["transaction_id"],
-                    },
+                    name: "esi",
+                    key: "esi",
+                    suggested_mappings: ["esi"],
+                    },                    
                     {
-                    name: "payment_date",
-                    key: "payment_date",
-                    required: true,
-                    suggested_mappings: ["payment_date"],
+                    name: "tax_regime",
+                    key: "tax_regime",
+                    suggested_mappings: ["tax_regime"],
                     },
                     {
                     name: "pay_period",
                     key: "pay_period",
                     required: true,
                     suggested_mappings: ["pay_period"],
-                    },
+                    },   
                     {
                     name: "basic",
                     key: "basic",
@@ -361,11 +441,31 @@ class AdminPayroll extends Component{
                     name: "medical",
                     key: "medical",
                     suggested_mappings: ["medical"],
+                    },          
+                    {
+                    name: "food_allowance",
+                    key: "food_allowance",
+                    suggested_mappings: ["food_allowance"],
+                    },
+                    {
+                    name: "dress_allowance",
+                    key: "dress_allowance",
+                    suggested_mappings: ["dress_allowance"],
+                    },
+                    {
+                    name: "telephone_internet",
+                    key: "telephone_internet",
+                    suggested_mappings: ["telephone_internet"],
                     },
                     {
                     name: "lta",
                     key: "lta",
                     suggested_mappings: ["lta"],
+                    },
+                    {
+                    name: "newspaper_periodicals",
+                    key: "newspaper_periodicals",
+                    suggested_mappings: ["newspaper_periodicals"],
                     },
                     {
                     name: "special_allowance",
@@ -388,40 +488,10 @@ class AdminPayroll extends Component{
                     suggested_mappings: ["incentive"],
                     },
                     {
-                    name: "food_allowance",
-                    key: "food_allowance",
-                    suggested_mappings: ["food_allowance"],
-                    },
-                    {
-                    name: "dress_allowance",
-                    key: "dress_allowance",
-                    suggested_mappings: ["dress_allowance"],
-                    },
-                    {
-                    name: "telephone_internet",
-                    key: "telephone_internet",
-                    suggested_mappings: ["telephone_internet"],
-                    },
-                    {
-                    name: "newspaper_periodicals",
-                    key: "newspaper_periodicals",
-                    suggested_mappings: ["newspaper_periodicals"],
-                    },
-                    {
-                    name: "it_tds",
-                    key: "it_tds",
-                    suggested_mappings: ["it_tds"],
-                    },
-                    {
-                    name: "deductions",
-                    key: "deductions",
-                    suggested_mappings: ["deductions"],
-                    },
-                    {
-                    name: "total_deductions",
-                    key: "total_deductions",
-                    suggested_mappings: ["total_deductions"],
-                    },
+                    name: "gross_salary",
+                    key: "gross_salary",
+                    suggested_mappings: ["gross_salary"],
+                    },                    
                     {
                     name: "pf",
                     key: "pf",
@@ -448,35 +518,27 @@ class AdminPayroll extends Component{
                     suggested_mappings: ["loan"],
                     },
                     {
-                    name: "insurance",
-                    key: "insurance",
-                    suggested_mappings: ["insurance"],
-                    },
-                    {
-                    name: "esi",
-                    key: "esi",
-                    suggested_mappings: ["esi"],
-                    },
-                    {
-                    name: "level",
-                    key: "level",
-                    suggested_mappings: ["level"],
-                    },
-                    {
-                    name: "tax_regime",
-                    key: "tax_regime",
-                    suggested_mappings: ["tax_regime"],
-                    },
-                    {
-                    name: "gross_salary",
-                    key: "gross_salary",
-                    suggested_mappings: ["gross_salary"],
-                    },
+                    name: "total_deductions",
+                    key: "total_deductions",
+                    suggested_mappings: ["total_deductions"],
+                    },                    
                     {
                     name: "net_salary",
                     key: "net_salary",
                     required: true,
                     suggested_mappings: ["net_salary"],
+                    },
+                    {
+                    name: "payment_mode",
+                    key: "payment_mode",
+                    required: true,
+                    suggested_mappings: ["payment_mode"],
+                    },        
+                    {
+                    name: "payment_date",
+                    key: "payment_date",
+                    required: true,
+                    suggested_mappings: ["payment_date"],
                     },
                     {
                     name: "remarks",

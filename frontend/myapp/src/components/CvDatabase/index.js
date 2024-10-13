@@ -80,6 +80,14 @@ class CvDatabase extends Component {
     handleComplete = async (candidateData) => {
         this.setState({isOpen: false})
 
+        for (const row of candidateData.rows) {
+            const {values} = row
+            
+            if (!values.name || !values.post_applied || !values.phone_no || !values.email_id || !values.experience ) {
+              return toast.error('Required Fields cannot be empty')
+            }
+          }
+
         const pendingToast = toast.loading("Uploading Candidate(s)...");
 
         try {
@@ -455,38 +463,6 @@ class CvDatabase extends Component {
                               suggestedMappings: ["post_applied"]
                             },
                             {
-                              name: "gender", 
-                              key: "gender", 
-                              required: true, 
-                              suggestedMappings: ["gender"]
-                            },
-                            {
-                              name: "dob", 
-                              key: "dob", 
-                              required: true, 
-                              suggestedMappings: ["dob"]
-                            },
-                            {
-                              name: "highest_qualification", 
-                              key: "highest_qualification", 
-                              suggestedMappings: ["highest_qualification"]
-                            },
-                            {
-                              name: "university", 
-                              key: "university", 
-                              suggestedMappings: ["university"]
-                            },
-                            {
-                              name: "contact_address", 
-                              key: "contact_address", 
-                              suggestedMappings: ["contact_address"]
-                            },
-                            {
-                              name: "current_position", 
-                              key: "current_position", 
-                              suggestedMappings: ["current_position"]
-                            },
-                            {
                               name: "phone_no", 
                               key: "phone_no", 
                               required: true, 
@@ -499,56 +475,11 @@ class CvDatabase extends Component {
                               suggestedMappings: ["email_id"]
                             },
                             {
-                              name: "linkedin", 
-                              key: "linkedin", 
-                              suggestedMappings: ["linkedin"]
-                            },
-                            {
-                              name: "languages_familiar", 
-                              key: "languages_familiar", 
-                              suggestedMappings: ["languages_familiar"]
-                            },
-                            {
                               name: "experience", 
                               key: "experience", 
+                              required: true, 
                               suggestedMappings: ["experience"]
                             },
-                            {
-                              name: "accomplishments", 
-                              key: "accomplishments", 
-                              suggestedMappings: ["accomplishments"]
-                            },
-                            {
-                              name: "other_details", 
-                              key: "other_details", 
-                              suggestedMappings: ["other_details"]
-                            },
-                            {
-                              name: "source", 
-                              key: "source", 
-                              suggestedMappings: ["source"]
-                            },
-                            {
-                              name: "date_received", 
-                              key: "date_received", 
-                              suggestedMappings: ["date_received"]
-                            },
-                            {
-                              name: "samples_attached", 
-                              key: "samples_attached", 
-                              suggestedMappings: ["samples_attached"]
-                            },
-                            {
-                              name: "cv_attachment", 
-                              key: "cv_attachment", 
-                              required: true, 
-                              suggestedMappings: ["cv_attachment"]
-                            },
-                            {
-                              name: "remarks", 
-                              key: "remarks", 
-                              suggestedMappings: ["remarks"]
-                            }
                           ]
                           
                     }}

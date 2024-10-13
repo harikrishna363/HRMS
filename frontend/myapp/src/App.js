@@ -98,7 +98,7 @@ class App extends Component {
             <Route path="/login" component={Login} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <ProtectedRoute exact path="/profile" component={Profile} />
-            <ProtectedRoute exact path="/dashboard" component={Dashboard} />
+            <ProtectedRoute exact path="/" component={Dashboard} />
             <ProtectedRoute exact path="/employee" component={Employee} />
             <ProtectedRoute exact path="/employee/:employeeId" component={EmployeeDetails} />
             <ProtectedRoute exact path="/add-employee-form" component={AddEmployeeForm} />

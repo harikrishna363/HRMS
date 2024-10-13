@@ -511,11 +511,11 @@ class Profile extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
-                        name="manager"
-                        value={myDetails.manager || ""}
+                        name="manager_id"
+                        value={myDetails.manager_id || ""}
                         readOnly
                     />
-                    <label>Manager</label>
+                    <label>Manager ID</label>
                 </InputWrapper>
 
                 <InputWrapper>
@@ -661,19 +661,9 @@ class Profile extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
-                        name="pan_number"
-                        value={myDetails.pan_number || ""}
-                        readOnly
-                        />
-                    <label>Pan Number</label>
-                </InputWrapper>
-
-                <InputWrapper>
-                    <Input
-                        type="text"
                         name="marital_status"
                         value={myDetails.marital_status || ""}
-                        readOnly
+                        onChange={this.handleInputChange}
                         />
                     <label>Marital Status</label>
                 </InputWrapper>
@@ -693,7 +683,7 @@ class Profile extends Component{
                         type="text"
                         name="children"
                         value={myDetails.children || ""}
-                        readOnly
+                        onChange={this.handleInputChange}
                     />
                     <label>Children</label>
                 </InputWrapper>
@@ -731,11 +721,31 @@ class Profile extends Component{
                 <InputWrapper>
                     <Input
                         type="text"
+                        name="aadhar_number"
+                        value={myDetails.aadhar_number || ""}
+                        readOnly
+                    />
+                    <label>Aadhar Number</label>
+                </InputWrapper>
+
+                <InputWrapper>
+                    <Input
+                        type="text"
                         name="aadhar_card"
                         value={myDetails.aadhar_card || ""}
                         readOnly
                     />
                     <label>Aadhar Card</label>
+                </InputWrapper>
+
+                <InputWrapper>
+                    <Input
+                        type="text"
+                        name="pan_number"
+                        value={myDetails.pan_number || ""}
+                        readOnly
+                        />
+                    <label>Pan Number</label>
                 </InputWrapper>
 
                 <InputWrapper>
@@ -747,6 +757,18 @@ class Profile extends Component{
                     />
                     <label>Pan Card</label>
                 </InputWrapper>
+
+                <InputWrapper>
+                    <Input
+                        type="text"
+                        name="voter_id"
+                        value={myDetails.voter_id || ""}
+                        readOnly
+                    />
+                    <label>Voter Id</label>
+                </InputWrapper>
+
+                <div style={{display: 'flex', alignItems: 'flex-start'}}>
 
                 <InputWrapper>
                     <Input
@@ -766,18 +788,7 @@ class Profile extends Component{
                         readOnly
                     />
                     <label>Passport Copy</label>
-                </InputWrapper>
-
-                <div style={{display: 'flex', alignItems: 'flex-start'}}>
-                <InputWrapper>
-                    <Input
-                        type="text"
-                        name="voter_id"
-                        value={myDetails.voter_id || ""}
-                        readOnly
-                    />
-                    <label>Voter Id</label>
-                </InputWrapper>
+                </InputWrapper>                
 
                 <InputWrapper>
                     <TextArea
@@ -789,6 +800,8 @@ class Profile extends Component{
                     <label>Relevant Certificates</label>
                 </InputWrapper>
 
+                </div>
+
                 <InputWrapper>
                     <TextArea
                     name="special_certificates"
@@ -798,7 +811,6 @@ class Profile extends Component{
                 />
                     <label>Special Certificates</label>
                 </InputWrapper>
-                </div>
 
                 <InputWrapper>
                     <TextArea

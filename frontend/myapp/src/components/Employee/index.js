@@ -229,6 +229,10 @@ class Employee extends Component {
                 selector: row => row.phone_number,       
             },
             {
+                name: 'Manager',
+                selector: row => row.manager_name,       
+            },
+            {
                 name: 'Department',
                 selector: row => row.department,
             },

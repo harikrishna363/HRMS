@@ -342,21 +342,27 @@ app.get('/api/active-cv-count', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/employee', authenticateToken, async (req, res) => {
-  const query = `select 
-    employee_id,
-    first_name || ' ' || last_name as name,
-    email,
-    phone_number,
-    department,
-    designation,
-    status from employee;
-  `;
+  const query = `
+  SELECT 
+    e.employee_id,
+    e.first_name || ' ' || e.last_name AS name,
+    e.email,
+    e.phone_number,
+    e.department,
+    e.designation,
+    e.status,
+    m.first_name || ' ' || m.last_name AS manager_name
+  FROM employee e
+  LEFT JOIN employee m ON e.manager_id = m.employee_id
+`;
+
 
   try{
     const data = await db.all(query)
       res.status(200).json(data)
   } catch (err) {
-    res.status(500).json('Internal Server Error')
+    console.log(err)
+    res.status(500).json(err)
   }
 });
 
@@ -382,16 +388,20 @@ app.get('/api/active-employees', authenticateToken, async (req, res) => {
 app.get('/api/employee/:employeeId', authenticateToken, async (req, res) => {
   const {employeeId} = req.params
 
-  const query = `SELECT * 
-                 FROM employee e
-                 JOIN employee_personal ep
-                 ON e.employee_id = ep.employee_id
-                 JOIN employee_role er
-                 ON e.employee_id = er.employee_id
-                 JOIN role r
-                 ON er.role_id = r.role_id
-                 WHERE e.employee_id = ?
-  `;
+  const query = `
+  SELECT e.*, 
+         ep.*, 
+         er.*, 
+         r.*, 
+         m.first_name || " " || m.last_name as manager_name
+  FROM employee e
+  JOIN employee_personal ep ON e.employee_id = ep.employee_id
+  JOIN employee_role er ON e.employee_id = er.employee_id
+  JOIN role r ON er.role_id = r.role_id
+  LEFT JOIN employee m ON e.manager_id = m.employee_id
+  WHERE e.employee_id = ?
+`;
+
 
   try{
     const data = await db.get(query, [employeeId]);
@@ -525,11 +535,9 @@ app.post('/api/add-employee-csv', authenticateToken, async (req, res) => {
   try {
     for (const row of employees.rows) {
       const values = row.values; 
-
       const hashedPassword = await bcrypt.hash(values.password, 10);
 
       const roleId = roleMap[values.role] || '';
-
       const employeeData = [
         values.employee_id ? values.employee_id.trim() : null,
         values.first_name ? values.first_name.trim() : null,
@@ -546,7 +554,7 @@ app.post('/api/add-employee-csv', authenticateToken, async (req, res) => {
         values.hire_date ? values.hire_date.trim() : null,
         values.salary ? values.salary.trim() : null,
         values.department ? values.department.trim() : null,
-        values.manager_id ? values.manager.trim() : null,
+        values.manager_id ? values.manager_id.trim() : null,
         values.effective_date ? values.effective_date.trim() : null,
         values.joining_date ? values.joining_date.trim() : null,
         'Active',

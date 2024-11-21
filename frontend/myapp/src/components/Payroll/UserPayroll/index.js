@@ -98,7 +98,6 @@ class UserPayroll extends Component{
         const { selectedMonth, payrollData } = this.state;
 
         const columns = [
-            { name: "Transaction ID", selector: row => row.transaction_id },
             { name: "Payment Mode", selector: row => row.payment_mode },
             { name: "Bank Name", selector: row => row.bank_name },
             { name: "Account Number", selector: row => row.account_number },
@@ -122,6 +121,7 @@ class UserPayroll extends Component{
 
         return(
             <>
+            <p style={{textAlign: 'center'}}>To view your payslip, choose the month</p>
             <DataTable 
                 title={<TableTitle>My Payroll</TableTitle>}
                 columns={columns}

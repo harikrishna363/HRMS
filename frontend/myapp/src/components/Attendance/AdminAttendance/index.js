@@ -521,6 +521,15 @@ class AdminAttendance extends Component {
         )
       },
       { 
+        name: "Remarks",
+        selector: row => row.remarks,
+        cell: row => (
+          <div style={{cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={row.remarks}>
+            {row.remarks}
+          </div>
+        )
+      },
+      { 
         name: "Status",
          selector: row => row.leave_status,
          cell: row => (

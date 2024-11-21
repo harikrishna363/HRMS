@@ -1,29 +1,39 @@
 import { Component } from "react";
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
-import styled from "styled-components";
 import { Oval } from "react-loader-spinner"; 
 import { BiError } from "react-icons/bi";
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie'
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import styled from "styled-components";
 
+import PromotionHistoryModal from "./PromotionHistoryModal";
+import EmployeePromotionModal from "./EmployeePromotionModal";
 import AppContext from "../../../Context/AppContext";
 import Source from "../../Source";
-import { BackButton, CancelButton, Container, FlexContainer, Input,
-     InputWrapper, RetryBtn, SaveButton, SelectInput, TextArea, 
+
+import { AlignStartFlexContainer, BackButton, BlueBtn, CancelButton, Container, FlexContainer, Input,
+     InputWrapper, OutlineBtn, RetryBtn, SaveButton, SelectInput, TextArea, 
      Title} from "../../Source/styledComponent";
 
-const PhotographContainer = styled.div`
-    width: 16%;
-    border-radius: 7px;
-    padding: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    border: 2px solid #ddd;
-    margin-bottom: 15px;
-`
 
+const PhotographContainer = styled.div`
+width: 16%;
+border-radius: 7px;
+padding: 8px;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 15px;
+border: 2px solid #ddd;
+margin-bottom: 15px;
+margin-right: 50px;
+`
+const ViewPdfButton = styled.button`
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+`
 const apiStatusConstants = {
     loading: 'LOADING',
     success: 'SUCCESS',
@@ -36,10 +46,13 @@ class EmployeeDetails extends Component{
         employeeDetails: {},
         originalEmployeeDetails: {},
         isEdited: false,
+        fileInputKey: Date.now(),
         departments: [],
         managers: [],
         previewPhoto: null,
         employeeId: this.props.match.params.employeeId,
+        isEmployeePromotionModalOpen: false,
+        isPromotionHistoryModalOpen: false,
     }
 
     componentDidMount() {
@@ -91,19 +104,82 @@ class EmployeeDetails extends Component{
         }));
     }
 
+    handleFileChange = (e) => {
+        const { name, files } = e.target;
+
+        this.setState((prevState) => ({
+            employeeDetails: {
+                ...prevState.employeeDetails,
+                [name]: files[0]
+            },
+            isEdited: true,
+        }));
+    };
+    
     handleSaveChanges = async () => {
         const { employeeDetails } = this.state;
         const pendingToast = toast.loading(`Saving Changes for ${employeeDetails.employee_id}...`);
 
         try {
             const jwtToken = Cookies.get("jwt_token");
+
+            const formData = new FormData();
+            formData.append("employee_id", employeeDetails.employee_id);
+            formData.append("role_name", employeeDetails.role_name);
+            formData.append("status", employeeDetails.status);
+            formData.append("employee_id", employeeDetails.employee_id);
+            formData.append("first_name", employeeDetails.first_name);
+            formData.append("last_name", employeeDetails.last_name);
+            formData.append("gender", employeeDetails.gender);
+            formData.append("dob", employeeDetails.dob);
+            formData.append("email", employeeDetails.email);
+            formData.append("phone_number", employeeDetails.phone_number);
+            formData.append("employee_type", employeeDetails.employee_type);
+            formData.append("education_level", employeeDetails.education_level);
+            formData.append("job_title", employeeDetails.job_title);
+            formData.append("designation", employeeDetails.designation);
+            formData.append("hire_date", employeeDetails.hire_date);
+            formData.append("salary", employeeDetails.salary);
+            formData.append("department", employeeDetails.department);
+            formData.append("manager_id", employeeDetails.manager_id);
+            formData.append("effective_date", employeeDetails.effective_date);
+            formData.append("joining_date", employeeDetails.joining_date);
+            formData.append("resignation_date", employeeDetails.resignation_date);
+            formData.append("relieving_date", employeeDetails.relieving_date);
+            formData.append("personal_email", employeeDetails.personal_email);
+            formData.append("mother_tongue", employeeDetails.mother_tongue);
+            formData.append("educational_background", employeeDetails.educational_background);
+            formData.append("hobbies", employeeDetails.hobbies);
+            formData.append("anniversary_date", employeeDetails.anniversary_date);
+            formData.append("blood_type", employeeDetails.blood_type);
+            formData.append("current_residential_address", employeeDetails.current_residential_address);
+            formData.append("permanent_residential_address", employeeDetails.permanent_residential_address);
+            formData.append("special_certifications", employeeDetails.special_certifications);
+            formData.append("location", employeeDetails.location);
+            formData.append("marital_status", employeeDetails.marital_status);
+            formData.append("spouse_name", employeeDetails.spouse_name);
+            formData.append("children", employeeDetails.children);
+            formData.append("emergency_contact", employeeDetails.emergency_contact);
+            formData.append("relation_with_contact", employeeDetails.relation_with_contact);
+            formData.append("aadhar_number", employeeDetails.aadhar_number);
+            formData.append("pan_number", employeeDetails.pan_number);
+            formData.append("voter_id", employeeDetails.voter_id);
+            formData.append("remarks", employeeDetails.remarks);
+
+            formData.append("aadhar_card", employeeDetails.aadhar_card);
+            formData.append("pan_card", employeeDetails.pan_card);
+            formData.append("cv", employeeDetails.cv);
+            formData.append("address_proof", employeeDetails.address_proof);
+            formData.append("passport_copy", employeeDetails.passport_copy);
+            formData.append("special_certificates", employeeDetails.special_certificates);
+            formData.append("relevant_certificates", employeeDetails.relevant_certificates);
+
             const options = {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Bearer ${jwtToken}`,
                 },
-                body: JSON.stringify(employeeDetails),
+                body: formData,
             };
 
             const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-employee/${employeeDetails.employee_id}`, options);
@@ -132,7 +208,6 @@ class EmployeeDetails extends Component{
             this.fetcEmployeeDetails();
 
         } catch (error) {
-            console.log(error)
             toast.update(pendingToast, {
                 render: "Network error. Please try again later.",
                 type: "error",
@@ -147,12 +222,54 @@ class EmployeeDetails extends Component{
         this.setState((prevState) => ({
             employeeDetails: prevState.originalEmployeeDetails,
             isEdited: false, 
+            fileInputKey: Date.now(),
         }));
     };
 
+    viewPdfFile = (fieldName) => {
+        const fileBuffer = this.state.employeeDetails[fieldName];
+        
+        if (fileBuffer && fileBuffer.type === 'Buffer' && Array.isArray(fileBuffer.data)) {
+          // Convert fileBuffer.data to a Uint8Array and then create a Blob
+          const byteArray = new Uint8Array(fileBuffer.data);
+          const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
+      
+          // Generate a Blob URL
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+      
+          // Open PDF in a new tab
+          window.open(pdfUrl, '_blank');
+      
+          // Clean up the Blob URL after opening the file
+          URL.revokeObjectURL(pdfUrl);
+        } else {
+          console.warn(`No valid PDF data available for ${fieldName}`);
+        }
+    }
+      
     handleBackButtonClick = () => {
         this.props.history.goBack();
     };
+
+    openEmployeePromotionModal = () => {
+        this.setState({isEmployeePromotionModalOpen: true})      
+    }
+
+    closeEmployeePromotionModal = () => {
+        this.setState({isEmployeePromotionModalOpen: false})      
+    }
+
+    handleEmployeePromoted = () => {
+        this.fetcEmployeeDetails()
+    };
+
+    openPromotionHistoryModal = () => {
+        this.setState({isPromotionHistoryModalOpen: true})      
+    }
+
+    closePromotionHistoryModal = () => {
+        this.setState({isPromotionHistoryModalOpen: false})      
+    }
 
     render(){
         const {role} = this.context
@@ -207,32 +324,34 @@ class EmployeeDetails extends Component{
 
                 <Title style={{marginTop: '0px'}}>Employee Details</Title>
 
-                <PhotographContainer >
-                    <div
-                        style={{
-                            width: "150px",
-                            height: "150px",
-                            borderRadius: "7px",
-                            overflow: "hidden",
-                            border: "1px solid #ddd",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        {previewPhoto ? (
-                            <img
-                                src={previewPhoto}
-                                alt="Profile Preview"
-                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                            />
-                        ) : (
-                            <div style={{ color: "#aaa" }}>No Photo</div>
-                        )}
-                    </div>
-
-                    
-                </PhotographContainer>
+                <FlexContainer>
+                    <PhotographContainer >
+                        <div
+                            style={{
+                                width: "150px",
+                                height: "150px",
+                                borderRadius: "7px",
+                                overflow: "hidden",
+                                border: "1px solid #ddd",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            {previewPhoto ? (
+                                <img
+                                    src={previewPhoto}
+                                    alt="Profile Preview"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                            ) : (
+                                <div style={{ color: "#aaa" }}>No Photo</div>
+                            )}
+                        </div>  
+                    </PhotographContainer>
+                    <BlueBtn style={{marginRight: '20px'}} onClick={this.openEmployeePromotionModal}>Promote</BlueBtn>
+                    <OutlineBtn style={{marginRight: 'auto'}} onClick={this.openPromotionHistoryModal}>Promotion History</OutlineBtn>
+                </FlexContainer>
 
                 <InputWrapper>
                     <Input
@@ -606,15 +725,33 @@ class EmployeeDetails extends Component{
                     <label>Relation With Contact</label>
                 </InputWrapper>
 
-                <InputWrapper>
+                <AlignStartFlexContainer>
+
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
-                        type="text"
+                        style={{width: '100%'}}
+                        type="file"
                         name="cv"
-                        value={employeeDetails.cv || " "}
-                        onChange={this.handleInputChange}
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
                     />
-                    <label>CV</label>
+                    <label>CV (PDF)</label>
                 </InputWrapper>
+                {this.state.employeeDetails.cv ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('cv')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}
+                </div>
 
                 <InputWrapper>
                     <Input
@@ -626,15 +763,34 @@ class EmployeeDetails extends Component{
                     <label>Aadhar Number</label>
                 </InputWrapper>
 
-                <InputWrapper>
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
-                        type="text"
+                        style={{width: '100%'}}
+                        type="file"
                         name="aadhar_card"
-                        value={employeeDetails.aadhar_card || " "}
-                        onChange={this.handleInputChange}
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
                     />
-                    <label>Aadhar Card</label>
+                    <label>Aadhar Card (PDF)</label>
                 </InputWrapper>
+                {this.state.employeeDetails.aadhar_card ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('aadhar_card')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                 
+                </div>
+                </AlignStartFlexContainer>
+
+                <AlignStartFlexContainer>
 
                 <InputWrapper>
                     <Input
@@ -646,15 +802,31 @@ class EmployeeDetails extends Component{
                     <label>Pan Number</label>
                 </InputWrapper>
 
-                <InputWrapper>
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
-                        type="text"
+                        style={{width: '100%'}}
+                        type="file"
                         name="pan_card"
-                        value={employeeDetails.pan_card || " "}
-                        onChange={this.handleInputChange}
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
                     />
-                    <label>Pan Card</label>
+                    <label>Pan Card (PDF)</label>
                 </InputWrapper>
+                {this.state.employeeDetails.pan_card ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('pan_card')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                  
+                </div>
 
                 <InputWrapper>
                     <Input
@@ -665,52 +837,117 @@ class EmployeeDetails extends Component{
                     />
                     <label>Voter Id</label>
                 </InputWrapper>
+                </AlignStartFlexContainer>
 
-                <div style={{display: 'flex', alignItems: 'flex-start'}}>
+                <AlignStartFlexContainer>
 
-                <InputWrapper>
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
-                        type="text"
+                        style={{width: '100%'}}
+                        type="file"
                         name="address_proof"
-                        value={employeeDetails.address_proof || " "}
-                        onChange={this.handleInputChange}
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
                     />
-                    <label>Address Proof</label>
+                    <label>Address Proof (PDF)</label>
                 </InputWrapper>
-
-                <InputWrapper>
-                    <Input
-                        type="text"
-                        name="passport_copy"
-                        value={employeeDetails.passport_copy || " "}
-                        onChange={this.handleInputChange}
-                    />
-                    <label>Passport Copy</label>
-                </InputWrapper>
-
-                
-
-                <InputWrapper>
-                    <TextArea
-                    name="relevant_certificates"
-                    value={employeeDetails.relevant_certificates}
-                    onChange={this.handleInputChange}
-                    rows="3"
-                />
-                    <label>Relevant Certificates</label>
-                </InputWrapper>
-
+                {this.state.employeeDetails.address_proof ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('address_proof')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                 
                 </div>
 
-                <InputWrapper>
-                    <TextArea
-                    name="special_certificates"
-                    value={employeeDetails.special_certificates || " "}
-                    onChange={this.handleInputChange}
-                    rows="3"
-                />
-                    <label>Special Certificates</label>
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
+                    <Input
+                        style={{width: '100%'}}
+                        type="file"
+                        name="passport_copy"
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
+                    />
+                    <label>Passport Copy (PDF)</label>
                 </InputWrapper>
+                {this.state.employeeDetails.passport_copy ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('passport_copy')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                
+                </div>               
+
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
+                    <Input
+                        style={{width: '100%'}}
+                        type="file"
+                        name="relevant_certificates"
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
+                    />
+                    <label>Relevant Certificates (PDF)</label>
+                </InputWrapper>
+                {this.state.employeeDetails.relevant_certificates ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('relevant_certificates')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                
+                </div>
+
+                </AlignStartFlexContainer>
+
+                <AlignStartFlexContainer>
+
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
+                    <Input
+                        style={{width: '100%'}}
+                        type="file"
+                        name="special_certificates"
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
+                    />
+                    <label>Special Certificates (PDF)</label>
+                </InputWrapper>
+                {this.state.employeeDetails.special_certificates ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('special_certificates')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                
+                </div>
 
                 <InputWrapper>
                     <TextArea
@@ -721,6 +958,8 @@ class EmployeeDetails extends Component{
                 />
                     <label>Remarks</label>
                 </InputWrapper>   
+
+                </AlignStartFlexContainer>
 
                 <FlexContainer style={{justifyContent: 'start'}}>
                     <SaveButton
@@ -735,7 +974,20 @@ class EmployeeDetails extends Component{
                     >
                         Cancel Changes
                     </CancelButton>
-                </FlexContainer>            
+                </FlexContainer>    
+
+                <EmployeePromotionModal 
+                    isEmployeePromotionModalOpen={this.state.isEmployeePromotionModalOpen} 
+                    closeEmployeePromotionModal={this.closeEmployeePromotionModal}
+                    handleEmployeePromoted={this.handleEmployeePromoted}
+                    employee={employeeDetails}
+                />
+
+                <PromotionHistoryModal 
+                    isPromotionHistoryModalOpen={this.state.isPromotionHistoryModalOpen} 
+                    closePromotionHistoryModal={this.closePromotionHistoryModal}
+                    employeeId={this.state.employeeId}
+                />        
             </Source>
         )
     }

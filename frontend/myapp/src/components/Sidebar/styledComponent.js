@@ -11,20 +11,21 @@ export const SidebarBgContainer = styled.div`
 `
 export const LogoContainer = styled.div`
     width: 100%;
-    height: 160px;
+    height: 190px;
     background-color: transparent;
     display:flex;
     align-items:center;
     justify-content: center;
 `
 export const LogoImage = styled.img`
-    width: 80%;
+    width: 100%;
     height: 100%;
     border-top-right-radius: 18px;
 
 `
 export const MenuUnorderdListContainer = styled.ul`
     padding-left: 0px;
+    margin-top: 0px;
     width:100%;
     list-style: none;
 `

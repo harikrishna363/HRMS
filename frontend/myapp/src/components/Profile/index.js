@@ -5,16 +5,20 @@ import { Oval } from "react-loader-spinner";
 import { BiError } from "react-icons/bi";
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie'
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import styled from "styled-components";
 
 import Source from "../Source";
 import AppContext from "../../Context/AppContext";
-import styled from "styled-components";
+import PromotionHistoryModal from "./PromotionHistoryModal";
 
-import { FlexContainer, BackButton, InputWrapper, Input, SelectInput, 
+import { FlexContainer, BackButton, InputWrapper, Input, 
     TextArea, SaveButton, CancelButton, 
     Container,
     RetryBtn,
-    Title} from "../Source/styledComponent";
+    Title,
+    AlignStartFlexContainer,
+    OutlineBtn} from "../Source/styledComponent";
 
 const PhotographContainer = styled.div`
     width: 30%;
@@ -25,6 +29,11 @@ const PhotographContainer = styled.div`
     gap: 15px;
     border: 2px solid #ddd;
     margin-bottom: 15px;
+`
+const ViewPdfButton = styled.button`
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
 `
 
 const apiStatusConstants = {
@@ -41,6 +50,8 @@ class Profile extends Component{
         isEdited: false,
         photograph: null,
         previewPhoto: null,
+        fileInputKey: Date.now(),
+        isPromotionHistoryModalOpen: false,
         employeeId: this.context.employeeId
     }
 
@@ -150,6 +161,18 @@ class Profile extends Component{
         }));
     }
 
+    handleFileChange = (e) => {
+        const { name, files } = e.target;
+
+        this.setState((prevState) => ({
+            myDetails: {
+                ...prevState.myDetails,
+                [name]: files[0]
+            },
+            isEdited: true,
+        }));
+    };
+
     handleRemovePhoto = async () => {
         const pendingToast = toast.loading(`Deleting your Photograph...`);
 
@@ -203,13 +226,59 @@ class Profile extends Component{
 
         try {
             const jwtToken = Cookies.get("jwt_token");
+
+            const formData = new FormData();
+            formData.append("employee_id", myDetails.employee_id);
+            formData.append("role_name", myDetails.role_name);
+            formData.append("status", myDetails.status);
+            formData.append("employee_id", myDetails.employee_id);
+            formData.append("first_name", myDetails.first_name);
+            formData.append("last_name", myDetails.last_name);
+            formData.append("gender", myDetails.gender);
+            formData.append("dob", myDetails.dob);
+            formData.append("email", myDetails.email);
+            formData.append("phone_number", myDetails.phone_number);
+            formData.append("employee_type", myDetails.employee_type);
+            formData.append("education_level", myDetails.education_level);
+            formData.append("job_title", myDetails.job_title);
+            formData.append("designation", myDetails.designation);
+            formData.append("hire_date", myDetails.hire_date);
+            formData.append("salary", myDetails.salary);
+            formData.append("department", myDetails.department);
+            formData.append("manager_id", myDetails.manager_id);
+            formData.append("effective_date", myDetails.effective_date);
+            formData.append("joining_date", myDetails.joining_date);
+            formData.append("resignation_date", myDetails.resignation_date);
+            formData.append("relieving_date", myDetails.relieving_date);
+            formData.append("personal_email", myDetails.personal_email);
+            formData.append("mother_tongue", myDetails.mother_tongue);
+            formData.append("educational_background", myDetails.educational_background);
+            formData.append("hobbies", myDetails.hobbies);
+            formData.append("anniversary_date", myDetails.anniversary_date);
+            formData.append("blood_type", myDetails.blood_type);
+            formData.append("current_residential_address", myDetails.current_residential_address);
+            formData.append("permanent_residential_address", myDetails.permanent_residential_address);
+            formData.append("special_certifications", myDetails.special_certifications);
+            formData.append("location", myDetails.location);
+            formData.append("marital_status", myDetails.marital_status);
+            formData.append("spouse_name", myDetails.spouse_name);
+            formData.append("children", myDetails.children);
+            formData.append("emergency_contact", myDetails.emergency_contact);
+            formData.append("relation_with_contact", myDetails.relation_with_contact);
+            formData.append("aadhar_number", myDetails.aadhar_number);
+            formData.append("pan_number", myDetails.pan_number);
+            formData.append("voter_id", myDetails.voter_id);
+            formData.append("remarks", myDetails.remarks);
+
+            formData.append("special_certificates", myDetails.special_certificates);
+            formData.append("relevant_certificates", myDetails.relevant_certificates);
+
             const options = {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Bearer ${jwtToken}`,
                 },
-                body: JSON.stringify({...myDetails, photograph: ''}),
+                body: formData,
             };
 
             const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/update-profile/${myDetails.employee_id}`, options );
@@ -251,13 +320,43 @@ class Profile extends Component{
     handleCancelChanges = () => {
         this.setState(prevState => ({
             myDetails: { ...prevState.myOriginalDetails },
-            isEdited: false
+            isEdited: false,
+            fileInputKey: Date.now(),
         }));
     };
 
     handleBackButtonClick = () => {
         this.props.history.goBack();
     };
+
+    viewPdfFile = (fieldName) => {
+        const fileBuffer = this.state.myDetails[fieldName];
+        
+        if (fileBuffer && fileBuffer.type === 'Buffer' && Array.isArray(fileBuffer.data)) {
+          // Convert fileBuffer.data to a Uint8Array and then create a Blob
+          const byteArray = new Uint8Array(fileBuffer.data);
+          const pdfBlob = new Blob([byteArray], { type: 'application/pdf' });
+      
+          // Generate a Blob URL
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+      
+          // Open PDF in a new tab
+          window.open(pdfUrl, '_blank');
+      
+          // Clean up the Blob URL after opening the file
+          URL.revokeObjectURL(pdfUrl);
+        } else {
+          console.warn(`No valid PDF data available for ${fieldName}`);
+        }
+    }
+
+    openPromotionHistoryModal = () => {
+        this.setState({isPromotionHistoryModalOpen: true})      
+    }
+
+    closePromotionHistoryModal = () => {
+        this.setState({isPromotionHistoryModalOpen: false})      
+    }
 
     render(){
         if (this.state.apiStatus === apiStatusConstants.loading) {
@@ -299,50 +398,54 @@ class Profile extends Component{
 
                 <Title>My Profile</Title>
 
-                {/* Profile Photo Section */}
-                <PhotographContainer >
-                    <div
-                        style={{
-                            width: "150px",
-                            height: "150px",
-                            borderRadius: "7px",
-                            overflow: "hidden",
-                            border: "1px solid #ddd",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        {previewPhoto ? (
-                            <img
-                                src={previewPhoto}
-                                alt="Profile Preview"
-                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                            />
-                        ) : (
-                            <div style={{ color: "#aaa" }}>No Photo</div>
-                        )}
-                    </div>
+                <FlexContainer>
+                    <PhotographContainer >
+                        <div
+                            style={{
+                                width: "150px",
+                                height: "150px",
+                                borderRadius: "7px",
+                                overflow: "hidden",
+                                border: "1px solid #ddd",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            {previewPhoto ? (
+                                <img
+                                    src={previewPhoto}
+                                    alt="Profile Preview"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                            ) : (
+                                <div style={{ color: "#aaa" }}>No Photo</div>
+                            )}
+                        </div>
 
-                    <div>
-                        <label>
-                            <FlexContainer style={{cursor: 'pointer'}}><AiOutlineUpload /> Upload Photo</FlexContainer>
-                            
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={this.handlePhotographUpload}
-                                style={{ display: "none", cursor: 'pointer' }}
-                            />
-                        </label>
-                        <br />
-                        <button 
-                            onClick={this.handleRemovePhoto} 
-                            style={{ color: "red", border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}>
-                            <FlexContainer><AiOutlineClose /> Remove Photo</FlexContainer> 
-                        </button>
-                    </div>
-                </PhotographContainer>
+                        <div>
+                            <label>
+                                <FlexContainer style={{cursor: 'pointer'}}><AiOutlineUpload /> Upload Photo</FlexContainer>
+                                
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={this.handlePhotographUpload}
+                                    style={{ display: "none", cursor: 'pointer' }}
+                                />
+                            </label>
+                            <br />
+                            <button 
+                                onClick={this.handleRemovePhoto} 
+                                style={{ color: "red", border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}>
+                                <FlexContainer><AiOutlineClose /> Remove Photo</FlexContainer> 
+                            </button>
+                        </div>
+                    </PhotographContainer>
+                    <OutlineBtn style={{marginRight: 'auto', marginLeft: '20px'}} onClick={this.openPromotionHistoryModal}>Promotion History</OutlineBtn>
+                </FlexContainer>
+
+                
 
                 <InputWrapper>
                     <Input
@@ -395,16 +498,12 @@ class Profile extends Component{
                 </InputWrapper>
 
                 <InputWrapper>
-                    <SelectInput
+                    <Input
                         type="text"
                         name="gender"
                         value={myDetails.gender || ""}
                         readOnly
-                    >
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </SelectInput>
+                    />
                     <label>Gender</label>
                 </InputWrapper>
 
@@ -708,15 +807,32 @@ class Profile extends Component{
                     <label>Relation With Contact</label>
                 </InputWrapper>
 
-                <InputWrapper>
+                <AlignStartFlexContainer>
+
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
+                        style={{width: '100%'}}
                         type="text"
                         name="cv"
-                        value={myDetails.cv || ""}
+                        value={myDetails.cv ? 'Available' : 'Not Available'}
                         readOnly
                     />
-                    <label>CV</label>
+                    <label>CV (PDF)</label>
                 </InputWrapper>
+                {this.state.myDetails.cv ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('cv')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}
+                </div>
 
                 <InputWrapper>
                     <Input
@@ -728,15 +844,34 @@ class Profile extends Component{
                     <label>Aadhar Number</label>
                 </InputWrapper>
 
-                <InputWrapper>
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
+                        style={{width: '100%'}}
                         type="text"
                         name="aadhar_card"
-                        value={myDetails.aadhar_card || ""}
+                        value={myDetails.aadhar_card ? 'Available' : 'Not Available'}
                         readOnly
                     />
-                    <label>Aadhar Card</label>
+                    <label>Aadhar Card (PDF)</label>
                 </InputWrapper>
+                {this.state.myDetails.aadhar_card ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('aadhar_card')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}
+                </div>
+
+                </AlignStartFlexContainer>
+
+                <AlignStartFlexContainer>
 
                 <InputWrapper>
                     <Input
@@ -748,15 +883,30 @@ class Profile extends Component{
                     <label>Pan Number</label>
                 </InputWrapper>
 
-                <InputWrapper>
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
+                        style={{width: '100%'}}
                         type="text"
                         name="pan_card"
-                        value={myDetails.pan_card || ""}
+                        value={myDetails.pan_card ? 'Available' : 'Not Available'}
                         readOnly
                     />
-                    <label>Pan Card</label>
+                    <label>Pan Card (PDF)</label>
                 </InputWrapper>
+                {this.state.myDetails.pan_card ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('pan_card')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}
+                </div>
 
                 <InputWrapper>
                     <Input
@@ -768,49 +918,115 @@ class Profile extends Component{
                     <label>Voter Id</label>
                 </InputWrapper>
 
-                <div style={{display: 'flex', alignItems: 'flex-start'}}>
+                </AlignStartFlexContainer>
 
-                <InputWrapper>
+                <AlignStartFlexContainer>
+
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
+                        style={{width: '100%'}}
                         type="text"
                         name="address_proof"
-                        value={myDetails.address_proof || ""}
+                        value={myDetails.address_proof ? 'Available' : 'Not Available'}
                         readOnly
                     />
-                    <label>Address Proof</label>
+                    <label>Address Proof (PDF)</label>
                 </InputWrapper>
+                {this.state.myDetails.address_proof ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('address_proof')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}
+                </div>     
 
-                <InputWrapper>
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
                     <Input
+                        style={{width: '100%'}}
                         type="text"
                         name="passport_copy"
-                        value={myDetails.passport_copy || ""}
+                        value={myDetails.passport_copy ? 'Available' : 'Not Available'}
                         readOnly
                     />
-                    <label>Passport Copy</label>
-                </InputWrapper>                
-
-                <InputWrapper>
-                    <TextArea
-                    name="relevant_certificates"
-                    value={myDetails.relevant_certificates || ""}
-                    onChange={this.handleInputChange}
-                    rows="3"
-                />
-                    <label>Relevant Certificates</label>
+                    <label>Passport Copy (PDF)</label>
                 </InputWrapper>
+                {this.state.myDetails.passport_copy ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('passport_copy')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}
+                </div>    
 
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
+                    <Input
+                        style={{width: '100%'}}
+                        type="file"
+                        name="relevant_certificates"
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
+                    />
+                    <label>Relevant Certificates (PDF)</label>
+                </InputWrapper>
+                {this.state.myDetails.relevant_certificates ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('relevant_certificates')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                
                 </div>
 
-                <InputWrapper>
-                    <TextArea
-                    name="special_certificates"
-                    value={myDetails.special_certificates || ""}
-                    onChange={this.handleInputChange}
-                    rows="3"
-                />
-                    <label>Special Certificates</label>
+                </AlignStartFlexContainer>    
+
+                <AlignStartFlexContainer>
+
+                <div style={{width: '33%'}}>
+                <InputWrapper style={{width: '80%'}}>
+                    <Input
+                        style={{width: '100%'}}
+                        type="file"
+                        name="special_certificates"
+                        accept=".pdf"
+                        key={this.state.fileInputKey}
+                        onChange={this.handleFileChange}
+                    />
+                    <label>Special Certificates (PDF)</label>
                 </InputWrapper>
+                {this.state.myDetails.special_certificates ? (
+                    <ViewPdfButton 
+                    style={{ marginRight: 'auto' }} 
+                    onClick={() => this.viewPdfFile('special_certificates')}
+                    > 
+                    <FaRegEye size={20} />
+                    </ViewPdfButton>
+                ) : (
+                    <ViewPdfButton style={{ marginRight: 'auto', cursor: 'default' }}>
+                    <FaRegEyeSlash size={20} />
+                    </ViewPdfButton>
+                )}                
+                </div>
 
                 <InputWrapper>
                     <TextArea
@@ -821,6 +1037,8 @@ class Profile extends Component{
                 />
                     <label>Remarks</label>
                 </InputWrapper>   
+
+                </AlignStartFlexContainer>  
 
                 <FlexContainer style={{justifyContent: 'start'}}>
                     <SaveButton
@@ -835,7 +1053,12 @@ class Profile extends Component{
                     >
                         Cancel Changes
                     </CancelButton>
-                </FlexContainer>            
+                </FlexContainer>  
+                <PromotionHistoryModal 
+                    isPromotionHistoryModalOpen={this.state.isPromotionHistoryModalOpen} 
+                    closePromotionHistoryModal={this.closePromotionHistoryModal}
+                    employeeId={this.state.employeeId}
+                />           
             </Source> 
             
         )

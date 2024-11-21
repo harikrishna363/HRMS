@@ -135,11 +135,11 @@ class AdminDashboard extends Component{
                 </Card>
                 <Card>
                     <h3>Today's Work</h3>
-                    <p>00 hrs</p>
+                    <p>** hrs</p>
                 </Card>
                 <Card>
                     <h3>Annual Training</h3>
-                    <p>00 hrs</p>
+                    <p>** hrs</p>
                 </Card>
             </Container>
 

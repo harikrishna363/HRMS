@@ -36,9 +36,6 @@ export const AlignStartFlexContainer = styled.div`
     display: flex;
     align-items: flex-start;
 `
-export const StarMark = styled.span`
-    color: red;
-`
 export const SubmitButton = styled.button`
     border-radius: 5px;
     align-self: center;
@@ -208,7 +205,7 @@ export const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: ${({ readOnly }) => (readOnly ? '#f0f0f0' : 'transparent')};
-  color: ${({ readOnly }) => (readOnly ? '#888' : '#000')};
+  color: ${({ readOnly }) => (readOnly ? '#575555' : '#000')};
 `;
 export const SelectInput = styled.select`
   padding: 10px;

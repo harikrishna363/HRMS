@@ -28,6 +28,10 @@
         .table td, .net-amount td { border-bottom: 1px solid #ddd; }
         .total { font-weight: bold; }
         .note { text-align: center; }
+        .table thead {
+                border-bottom: 1px solid #ddd; 
+                border-top: 1px solid #ddd;            
+        }
         
         /* Vertical line between the second and third columns */
         .table td, .table th {
@@ -88,7 +92,6 @@
                 <th>Date of Joining:</th><td>{{joining_date}}</td>
             </tr>
         </table>
-        <hr />
     
         <table class="table">
             <thead>
@@ -122,7 +125,7 @@
             </thead>
         </table>
     </div>
-    <p class="note">Best wishes for a prosperous month ahead!</p>
+    <p class="note">{{remarks}}</p>
     <p class="note">This is a Computer Generated Pay Slip</p>
 </body>
 </html>

@@ -30,7 +30,7 @@ class Login extends Component {
     const { history } = this.props;
     const jwtToken = Cookies.get('jwt_token');
     if (jwtToken) {
-      history.replace("/dashboard");
+      history.replace("/");
       localStorage.setItem('activeMenuId', 'DASHBOARD');
     }
   }

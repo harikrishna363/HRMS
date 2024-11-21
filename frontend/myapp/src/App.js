@@ -10,6 +10,7 @@ import { Oval } from "react-loader-spinner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./components/Login";
 import ForgotPassword from "./components/Login/ForgotPassword";
+import LeaveForm from "./components/LeaveForm";
 import Profile from "./components/Profile";
 import Dashboard from "./components/Dashboard";
 import Employee from "./components/Employee";
@@ -47,6 +48,7 @@ class App extends Component {
 
   getEmployeeDetails = () => {
     const jwtToken = Cookies.get("jwt_token");
+
     if (jwtToken) {
       try {
         const decodedToken = jwtDecode(jwtToken);
@@ -61,7 +63,6 @@ class App extends Component {
     }
   };
   
-
   updateActiveMenuId = (id) => {
     this.setState({ activeMenuId: id });
     localStorage.setItem('activeMenuId', id); 
@@ -95,8 +96,9 @@ class App extends Component {
       }}>
         <BrowserRouter>
           <Switch>
-            <Route path="/login" component={Login} />
+            <Route exact path="/login" component={Login} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
+            <Route exact path="/leave-form/:leaveId" component={LeaveForm} />
             <ProtectedRoute exact path="/profile" component={Profile} />
             <ProtectedRoute exact path="/" component={Dashboard} />
             <ProtectedRoute exact path="/employee" component={Employee} />

@@ -68,10 +68,15 @@ class StandardMail extends Component{
             }
 
             const employeeData = await employeeResponse.json();
+            const employeesWithRecipientType = employeeData.map(employee => ({
+                ...employee,
+                recipientType: 'to', 
+            }));
+
             const mailTemplatesData = await mailTemplatesResponse.json();
 
             this.setState({
-                employees: employeeData,
+                employees: employeesWithRecipientType,
                 mailTemplates: mailTemplatesData,
                 apiStatus: apiStatusConstants.success,
             });
@@ -105,28 +110,6 @@ class StandardMail extends Component{
         this.fetchMailTemplates()
     };
 
-    fetchEmployees = async () => {
-        try {
-            const jwtToken = Cookies.get("jwt_token")
-            const options = {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${jwtToken}`
-                }
-            }
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/active-employees`, options);
-            if (!response.ok) {
-                throw new Error('Failed to fetch Employee details');
-            }
-            const data = await response.json();
-            this.setState({
-                employees: data
-            });
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
     fetchMailTemplates = async () => {
         try {
             const jwtToken = Cookies.get("jwt_token");
@@ -159,13 +142,22 @@ class StandardMail extends Component{
 
     handleSendMail = async () => {
         const { selectedRows, selectedTemplate } = this.state;
-        const employeeMails = selectedRows.map(row => row.email);
 
-        if (employeeMails.length === 0){
-            toast.error('Please select employees to send mail', {
+        if (selectedRows.length === 0){
+            toast.error('Please select at least one employee', {
                 autoClose: 4000,
             });
             return
+        }else {
+            // Check if there is at least one employee with recipient type 'to'
+            const hasRecipientTypeTo = selectedRows.some(employee => employee.recipientType === 'to');
+        
+            if (!hasRecipientTypeTo) {
+                toast.error('Please select at least one employee for the "To" field.', {
+                    autoClose: 4000,
+                });
+                return;
+            }
         }
 
         if (selectedTemplate === ''){
@@ -186,7 +178,7 @@ class StandardMail extends Component{
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${jwtToken}`,
                 },
-                body: JSON.stringify({selectedTemplate, employeeMails}),
+                body: JSON.stringify({selectedTemplate, employees: selectedRows}),
             }
 
             const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/send-mail`, options);
@@ -210,8 +202,18 @@ class StandardMail extends Component{
                 autoClose: 4000,  
             });
         
-            this.setState({clearSelectedRows: true, selectedRows: []})
-
+            this.setState({
+                clearSelectedRows: true,
+                selectedRows: [],
+                selectedTemplate: '',
+                employees: this.state.employees.map(employee => ({
+                    ...employee,
+                    recipientType: 'to'  // Reset recipientType to 'to' for all employees
+                }))
+            }, () => {
+                // Set clearSelectedRows back to false after updating employees
+                this.setState({ clearSelectedRows: false });
+            });
         } catch (error) {
             toast.update(pendingToast, {
               render: "Network error. Please try again later.",
@@ -222,9 +224,40 @@ class StandardMail extends Component{
         }
     }
 
-    handleRowSelected = (rows) => {
+    handleRowSelected = (rows) => {  
         this.setState({ selectedRows: rows.selectedRows });
-    }
+    };
+
+    handleRecipientTypeChange = (e, row) => {
+        const { employees, selectedRows } = this.state;
+        const updatedEmployees = [...employees]; // Shallow copy of employees array
+    
+        // Find and update the recipientType for the employee
+        const employeeIndex = updatedEmployees.findIndex(employee => employee.employee_id === row.employee_id);
+        if (employeeIndex !== -1) {
+            updatedEmployees[employeeIndex] = {
+                ...updatedEmployees[employeeIndex],
+                recipientType: e.target.value
+            };
+        }
+    
+        // Now update selectedRows if this employee is selected
+        const updatedSelectedRows = [...selectedRows]; // Shallow copy of selectedRows
+        const selectedRowIndex = updatedSelectedRows.findIndex(selectedRow => selectedRow.employee_id === row.employee_id);
+
+        if (selectedRowIndex !== -1) {
+            updatedSelectedRows[selectedRowIndex] = {
+                ...updatedSelectedRows[selectedRowIndex],
+                recipientType: e.target.value // Update the recipientType for the selected row
+            };
+        }
+    
+        // Set the updated state
+        this.setState({
+            employees: updatedEmployees,
+            selectedRows: updatedSelectedRows, // Ensure selectedRows is updated too
+        });
+    };
 
     handleStatusChange = async (event, name) => {
         event.preventDefault();
@@ -280,7 +313,6 @@ class StandardMail extends Component{
     renderEmployees = () => {
         const {employees, selectedTemplate, mailTemplates} = this.state
         const activeTemplates = mailTemplates.filter((template) => (template.status === 'Active'))
-
         const cellStyles = {
             headCells: {
               style: {
@@ -291,7 +323,20 @@ class StandardMail extends Component{
         }
 
         const employeeColumns = [
-            { name: "ID", selector: row => row.id, sortable: true},
+            {
+                name: "Recipient Type",
+                cell: (row) => (
+                    <SelectInput 
+                        style={{padding: '3px'}}
+                        value={row.recipientType}
+                        onChange={(e) => this.handleRecipientTypeChange(e, row)}
+                    >
+                        <option value="to">To</option>
+                        <option value="cc">CC</option>
+                    </SelectInput>
+                ),
+            },
+            { name: "ID", selector: row => row.employee_id, sortable: true},
             { name: "Name", selector: row => row.name},
             { name: "Department", selector: row => row.department},
             { name: "Designation", selector: row => row.designation},
@@ -310,6 +355,7 @@ class StandardMail extends Component{
                 pagination
                 persistTableHead
                 selectableRows
+                keyField="employee_id"
                 noContextMenu
                 noDataComponent={<NoRecordsText>No Employee Available</NoRecordsText>}
                 onSelectedRowsChange={this.handleRowSelected}

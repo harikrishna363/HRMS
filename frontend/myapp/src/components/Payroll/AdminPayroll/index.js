@@ -12,6 +12,7 @@ import { AlignStartFlexContainer, BlueBtn, Container, FlexContainer, NoRecordsTe
   RangeButton, RangeContainer, RetryBtn, SearchBox, TableContainer, 
   TableTitle,
   ViewPayslip} from "../../Source/styledComponent";
+import { DeleteButton } from "./styledComponent";
 
 const apiStatusConstants = {
   loading: 'LOADING',
@@ -27,6 +28,8 @@ class AdminPayroll extends Component{
         searchQuery: "",
         payrollData: [],
         selectedMonth: new Date(),
+        selectedRows: [],
+        clearSelectedRows: false,
     };
 
     componentDidMount() {
@@ -54,11 +57,14 @@ class AdminPayroll extends Component{
               !values.telephone_internet || !values.lta || !values.newspaper_periodicals || !values.special_allowance || 
               !values.other_allowance || !values.variable_pay || !values.incentive || !values.gross_salary || 
               !values.pf || !values.pt || !values.income_tax || !values.others || !values.loan || !values.total_deductions || 
-              !values.net_salary || !values.payment_mode || !values.payment_date || !values.remarks) {
+              !values.net_salary || !values.payment_mode || !values.payment_date) {
               return toast.error('Required Fields cannot be empty');
           }
+
+          if (values.remarks.length > 100) {
+            return toast.error('Remarks must be atmost 100 characters');
+          }
   
-          // Set decimal fields to empty string if their value is 0
           const decimalFields = ['basic', 'hra', 'conveyance', 'medical', 'lta', 'special_allowance', 
                                  'other_allowance', 'variable_pay', 'incentive', 'food_allowance', 
                                  'dress_allowance', 'telephone_internet', 'newspaper_periodicals', 
@@ -67,7 +73,7 @@ class AdminPayroll extends Component{
   
           decimalFields.forEach(field => {
               if (values[field] === '0') {
-                  values[field] = "";
+                  values[field] = "-";
               }
           });
       }
@@ -240,6 +246,59 @@ class AdminPayroll extends Component{
         URL.revokeObjectURL(url);
     };
 
+    handleRowSelected = (rows) => {  
+      this.setState({ selectedRows: rows.selectedRows });
+    };
+
+    handleDeletePayroll = async () => {
+      const pendingToast = toast.loading("Deleting Payslip(s)...");
+      const payrollIds = this.state.selectedRows.map(row => row.payroll_id)
+  
+      try {
+          const jwtToken = Cookies.get("jwt_token");
+          const options = {
+              method: "DELETE",
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${jwtToken}`,
+              },
+              body: JSON.stringify({payrollIds}),
+          };
+  
+          const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/delete-payroll`, options);
+          const data = await response.json();
+  
+          if (!response.ok) {
+              toast.update(pendingToast, {
+                  render: data.failure,
+                  type: "error",
+                  isLoading: false,
+                  autoClose: 4000,
+              });
+  
+              return;
+          }
+  
+          toast.update(pendingToast, {
+              render: data.success,
+              type: "success",
+              isLoading: false,
+              autoClose: 4000,
+          });
+  
+          this.fetchPayrollData();
+          this.setState({clearSelectedRows: true, selectedRows: []})
+  
+      } catch (error) {
+          toast.update(pendingToast, {
+              render: "Network error. Please try again later.",
+              type: "error",
+              isLoading: false,
+              autoClose: 4000,
+          });
+      }
+    }
+
     render(){
         const { selectedMonth, filteredData, searchQuery, isOpen } = this.state;
 
@@ -332,6 +391,8 @@ class AdminPayroll extends Component{
                 <BlueBtn onClick={this.handleOpen}>Upload Payroll</BlueBtn>
             </AlignStartFlexContainer>
 
+            <p style={{textAlign: 'center'}}>To view payslips, choose the month</p>
+
             <TableContainer>
               <DataTable 
                   title={<TableTitle>Payroll Records</TableTitle>}
@@ -340,11 +401,16 @@ class AdminPayroll extends Component{
                   customStyles={cellStyles}
                   pagination
                   persistTableHead
+                  selectableRows
+                  noContextMenu
+                  onSelectedRowsChange={this.handleRowSelected}
+                  clearSelectedRows={this.state.clearSelectedRows}
                   noDataComponent={<NoRecordsText>No Payroll Records</NoRecordsText>}
                   progressPending={this.state.apiStatus === apiStatusConstants.loading} 
                   progressComponent={ <div style={{marginTop: '20px'}}><Oval height={40} width={40} color="#3498DB" /></div>}
                   actions = {
                       <FlexContainer>
+                          <DeleteButton disabled={this.state.selectedRows.length === 0} onClick={this.handleDeletePayroll}>Delete</DeleteButton>
                           <RangeContainer>
                           <RangeButton onClick={() => this.handleMonthChange(-1)}> <MdOutlineKeyboardArrowLeft size={20}/></RangeButton>
                           <div style={{ margin: '0 10px', fontSize: '16px', color: '#6c757d' }}>
@@ -381,6 +447,7 @@ class AdminPayroll extends Component{
                     {
                     name: "level",
                     key: "level",
+                    required: true,
                     suggested_mappings: ["level"],
                     },   
                     {
@@ -404,16 +471,19 @@ class AdminPayroll extends Component{
                     {
                     name: "insurance",
                     key: "insurance",
+                    required: true,
                     suggested_mappings: ["insurance"],
                     },
                     {
                     name: "esi",
                     key: "esi",
+                    required: true,
                     suggested_mappings: ["esi"],
                     },                    
                     {
                     name: "tax_regime",
                     key: "tax_regime",
+                    required: true,
                     suggested_mappings: ["tax_regime"],
                     },
                     {
@@ -425,101 +495,121 @@ class AdminPayroll extends Component{
                     {
                     name: "basic",
                     key: "basic",
+                    required: true,
                     suggested_mappings: ["basic"],
                     },
                     {
                     name: "hra",
                     key: "hra",
+                    required: true,
                     suggested_mappings: ["hra"],
                     },
                     {
                     name: "conveyance",
                     key: "conveyance",
+                    required: true,
                     suggested_mappings: ["conveyance"],
                     },
                     {
                     name: "medical",
                     key: "medical",
+                    required: true,
                     suggested_mappings: ["medical"],
                     },          
                     {
                     name: "food_allowance",
                     key: "food_allowance",
+                    required: true,
                     suggested_mappings: ["food_allowance"],
                     },
                     {
                     name: "dress_allowance",
                     key: "dress_allowance",
+                    required: true,
                     suggested_mappings: ["dress_allowance"],
                     },
                     {
                     name: "telephone_internet",
                     key: "telephone_internet",
+                    required: true,
                     suggested_mappings: ["telephone_internet"],
                     },
                     {
                     name: "lta",
                     key: "lta",
+                    required: true,
                     suggested_mappings: ["lta"],
                     },
                     {
                     name: "newspaper_periodicals",
                     key: "newspaper_periodicals",
+                    required: true,
                     suggested_mappings: ["newspaper_periodicals"],
                     },
                     {
                     name: "special_allowance",
                     key: "special_allowance",
+                    required: true,
                     suggested_mappings: ["special_allowance"],
                     },
                     {
                     name: "other_allowance",
                     key: "other_allowance",
+                    required: true,
                     suggested_mappings: ["other_allowance"],
                     },
                     {
                     name: "variable_pay",
                     key: "variable_pay",
+                    required: true,
                     suggested_mappings: ["variable_pay"],
                     },
                     {
                     name: "incentive",
                     key: "incentive",
+                    required: true,
                     suggested_mappings: ["incentive"],
                     },
                     {
                     name: "gross_salary",
                     key: "gross_salary",
+                    required: true,
                     suggested_mappings: ["gross_salary"],
                     },                    
                     {
                     name: "pf",
                     key: "pf",
+                    required: true,
                     suggested_mappings: ["pf"],
                     },
                     {
                     name: "pt",
                     key: "pt",
+                    required: true,
                     suggested_mappings: ["pt"],
                     },
                     {
                     name: "income_tax",
                     key: "income_tax",
+                    required: true,
                     suggested_mappings: ["income_tax"],
                     },
                     {
                     name: "others",
                     key: "others",
+                    required: true,
                     suggested_mappings: ["others"],
                     },
                     {
                     name: "loan",
                     key: "loan",
+                    required: true,
                     suggested_mappings: ["loan"],
                     },
                     {
                     name: "total_deductions",
                     key: "total_deductions",
+                    required: true,
                     suggested_mappings: ["total_deductions"],
                     },                    
                     {

@@ -40,3 +40,20 @@ export const SearchBox = styled.input`
   width: 300px;
   border-radius: 7px;
 `
+export const DeleteButton = styled.button`
+  margin: 10px;
+  margin-right: 30px;
+  padding: 10px 20px;
+  background-color: ${(props) => (props.disabled ? '#f5c6c6' : '#d9534f')}; /* light red for disabled, darker red for active */
+  color: #fff;
+  border: none;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: ${(props) => (!props.disabled ? '#c9302c' : '#f5c6c6')}; /* darker red on hover */
+  }
+`;
